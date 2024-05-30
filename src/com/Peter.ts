@@ -1,9 +1,10 @@
 import { k } from '../kaboom';
-import { Comp } from 'kaboom';
+import { Comp, Vec2 } from 'kaboom';
 
 const {
    isKeyDown,
    lifespan,
+   onKeyPress,
    vec2,
 } = k;
 
@@ -12,24 +13,31 @@ export interface PeterComp extends Comp {
    isAlive: boolean;
    freeze: Function;
    die: Function;
+   setAnim: (dir: Vec2) => void;
 }
 
 export function peter(): PeterComp {
    return {
       id: "peter",
-      require: ["area", "sprite", "can-walk"],
+      require: ["area", "sprite", "can-salt", "can-walk"],
       isFrozen: false,
       isAlive: true,
       add() {
-         this.onDirChange(newdir=>{
-            let anim = 'idle';
-            let flipX = newdir.x>0;
-            if (newdir.y<0) anim = 'up';
-            else if (newdir.y>0) anim = 'down';
-            else if (newdir.x) anim = 'walk';
-            if (this.curAnim() !== anim) this.play(anim);
-            this.flipX = flipX;
+         onKeyPress(key=>{
+            if (key==='space') {
+               this.throwSalt();
+            }
          });
+         this.onDirChange(this.setAnim);
+      },
+      setAnim(newdir) {
+         let anim = 'idle';
+         let flipX = newdir.x>0;
+         if (newdir.y<0) anim = 'up';
+         else if (newdir.y>0) anim = 'down';
+         else if (newdir.x) anim = 'walk';
+         if (this.curAnim() !== anim) this.play(anim);
+         this.flipX = flipX;
       },
       update() {
          if (this.isFrozen) {
