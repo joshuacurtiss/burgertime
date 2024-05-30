@@ -4,7 +4,6 @@ import { Comp } from 'kaboom';
 const {
    isKeyDown,
    lifespan,
-   onKeyRelease,
    vec2,
 } = k;
 
@@ -22,38 +21,26 @@ export function peter(): PeterComp {
       isFrozen: false,
       isAlive: true,
       add() {
-         onKeyRelease('up', ()=>this.snap('vert'));
-         onKeyRelease('down', ()=>this.snap('vert'));
-         onKeyRelease('left', ()=>this.snap('horiz'));
-         onKeyRelease('right', ()=>this.snap('horiz'));
+         this.onDirChange(newdir=>{
+            let anim = 'idle';
+            let flipX = newdir.x>0;
+            if (newdir.y<0) anim = 'up';
+            else if (newdir.y>0) anim = 'down';
+            else if (newdir.x) anim = 'walk';
+            if (this.curAnim() !== anim) this.play(anim);
+            this.flipX = flipX;
+         });
       },
       update() {
          if (this.isFrozen) {
             return;
          }
-         let anim = 'idle';
          let dir = vec2(0);
-         let flipX = false;
-         if (isKeyDown("up")) {
-            anim = 'up';
-            dir = dir.add(0, -1);
-         }
-         if (isKeyDown("down")) {
-            anim = 'down';
-            dir = dir.add(0, 1);
-         }
-         if (isKeyDown("left")) {
-            anim = 'walk';
-            dir = dir.add(-1, 0);
-         }
-         if (isKeyDown("right")) {
-            anim = 'walk';
-            dir = dir.add(1, 0);
-            flipX = true;
-         }
-         this.dir = dir;
-         this.flipX = flipX;
-         if (this.curAnim() !== anim) this.play(anim);
+         if (isKeyDown("left")) dir = vec2(-1, 0);
+         else if (isKeyDown("right")) dir = vec2(1, 0);
+         else if (isKeyDown("up")) dir = vec2(0, -1);
+         else if (isKeyDown("down")) dir = vec2(0, 1);
+         this.setIntendedDir(dir);
       },
       freeze() {
          this.isFrozen = true;
