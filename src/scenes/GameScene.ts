@@ -8,6 +8,7 @@ import { k } from '../kaboom';
 import { powerup } from '../com/Powerup';
 import { peter, PeterComp } from '../com/Peter';
 import { canSalt, SaltComp } from '../com/Salt';
+import { canScore, ScoreComp } from '../com/Score';
 import { canWalk, WalkComp, WalkableObj } from '../com/Walk';
 import LEVELS from '../levels.json';
 
@@ -75,6 +76,7 @@ const levelConf: LevelOpt = {
          anchor('center'),
          peter(),
          canSalt(),
+         canScore(),
          canWalk(),
          z(10),
          "player",
@@ -120,7 +122,7 @@ export default function(levelNumber = 0) {
    });
 
    // Player setup
-   const player: GameObj<PeterComp & PosComp & SpriteComp & SaltComp & WalkComp> = level.spawn("p", 16, 21.625);
+   const player: GameObj<PeterComp & PosComp & SpriteComp & SaltComp & ScoreComp & WalkComp> = level.spawn("p", 16, 21.625);
    player.setObjects({ floors, stairs, stairtops });
 
    // Powerups
