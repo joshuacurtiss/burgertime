@@ -5,6 +5,7 @@ import {
    SpriteComp,
 } from 'kaboom';
 import { k } from '../kaboom';
+import { powerup } from '../com/Powerup';
 import { peter, PeterComp } from '../com/Peter';
 import { canSalt, SaltComp } from '../com/Salt';
 import { canWalk, WalkComp, WalkableObj } from '../com/Walk';
@@ -16,9 +17,11 @@ const {
    anchor,
    area,
    fixed,
+   rand,
    Rect,
    sprite,
    vec2,
+   wait,
    z,
 } = k;
 
@@ -73,7 +76,12 @@ const levelConf: LevelOpt = {
          peter(),
          canSalt(),
          canWalk(),
+         z(10),
          "player",
+      ],
+      '$': () => [
+         powerup(),
+         z(5),
       ],
    },
 };
@@ -114,4 +122,13 @@ export default function(levelNumber = 0) {
    // Player setup
    const player: GameObj<PeterComp & PosComp & SpriteComp & SaltComp & WalkComp> = level.spawn("p", 16, 21.625);
    player.setObjects({ floors, stairs, stairtops });
+
+   // Powerups
+   function waitSpawnPowerup() {
+      // Wait 20-60 seconds
+      wait(rand()*40+20, ()=>{
+         level.spawn('$', 16, 13.5).onDestroy(waitSpawnPowerup)
+      });
+   }
+   waitSpawnPowerup();
 }

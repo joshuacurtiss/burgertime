@@ -53,6 +53,7 @@ loadSprite("floor-stair-green", "floor-stair-green.png", { sliceX: 2 });
 loadSprite("head-h", "head-h.png");
 loadSprite("head-p", "head-p.png");
 loadSprite("plate", "plate.png", { sliceX: 2 });
+loadSprite("powerups", "powerups.png", { sliceX: 3 });
 loadSprite("salt", "salt.png", { sliceX: 4 });
 loadSprite("stair-blue", "stair-blue.png", { sliceX: 2 });
 loadSprite("stair-green", "stair-green.png", { sliceX: 2 });
