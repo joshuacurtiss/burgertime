@@ -3,20 +3,26 @@ import { Comp, Vec2 } from 'kaboom';
 
 const {
    isKeyDown,
-   lifespan,
    onKeyPress,
    vec2,
+   wait,
 } = k;
+
+type DieCallbackFn = (player: PeterComp)=>void;
 
 export interface PeterComp extends Comp {
    isFrozen: boolean;
    isAlive: boolean;
    freeze: Function;
    die: Function;
+   get lives(): number;
+   onDie: (fn: DieCallbackFn) => void;
    setAnim: (dir: Vec2) => void;
 }
 
 export function peter(): PeterComp {
+   const dieCallbacks: DieCallbackFn[] = [];
+   let lives = 4;
    return {
       id: "peter",
       require: ["area", "sprite", "can-salt", "can-walk"],
@@ -28,7 +34,14 @@ export function peter(): PeterComp {
                this.throwSalt();
             }
          });
+         this.onCollide("enemy", enemy=>{
+            if (enemy.isStunned) return;
+            this.die();
+         });
          this.onDirChange(this.setAnim);
+      },
+      onDie(fn) {
+         dieCallbacks.push(fn);
       },
       setAnim(newdir) {
          let anim = 'idle';
@@ -40,9 +53,7 @@ export function peter(): PeterComp {
          this.flipX = flipX;
       },
       update() {
-         if (this.isFrozen) {
-            return;
-         }
+         if (this.isFrozen || !this.isAlive) return;
          let dir = vec2(0);
          if (isKeyDown("left")) dir = vec2(-1, 0);
          else if (isKeyDown("right")) dir = vec2(1, 0);
@@ -53,10 +64,20 @@ export function peter(): PeterComp {
       freeze() {
          this.isFrozen = true;
       },
-      die() {
-         this.unuse("body");
+      get lives() {
+         return lives;
+      },
+      async die() {
          this.isAlive = false;
-         this.use(lifespan(1, { fade: 1 }));
+         lives-=1;
+         this.stop();
+         this.frame = 14;
+         await wait(1);
+         this.play("fall");
+         await wait(0.55);
+         this.play("dead");
+         await wait(1);
+         dieCallbacks.forEach(fn=>fn(this));
       },
    };
 }
