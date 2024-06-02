@@ -6,6 +6,7 @@ import {
 } from 'kaboom';
 import { k } from '../kaboom';
 import { powerup } from '../com/Powerup';
+import { enemy } from '../com/Enemy';
 import { peter, PeterComp } from '../com/Peter';
 import { canSalt, SaltComp } from '../com/Salt';
 import { canScore, ScoreComp } from '../com/Score';
@@ -124,6 +125,9 @@ export default function(levelNumber = 0) {
    // Player setup
    const player: GameObj<PeterComp & PosComp & SpriteComp & SaltComp & ScoreComp & WalkComp> = level.spawn("p", 16, 21.625);
    player.setObjects({ floors, stairs, stairtops });
+
+   // Enemy Setup
+   enemy('hotdog', vec2(160, 173));
 
    // Powerups
    function waitSpawnPowerup() {
