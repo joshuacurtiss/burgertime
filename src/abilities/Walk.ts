@@ -161,6 +161,7 @@ export function canWalk(): WalkComp {
          }
       },
       setIntendedDir(dir) {
+         if (this.isFrozen || !this.isAlive) return;
          this.setDir(this.restrictDir(dir));
       },
       snap(orientation) {

@@ -1,16 +1,37 @@
 import { k } from '../kaboom';
-import { Comp, Vec2 } from 'kaboom';
+import {
+   AnchorComp,
+   AreaComp,
+   Comp,
+   GameObj,
+   PosComp,
+   SpriteComp,
+   Vec2,
+   ZComp,
+} from 'kaboom';
+import { SaltComp, canSalt } from '../abilities/Salt';
+import { ScoreComp, canScore } from '../abilities/Score';
+import { WalkComp, WalkableObj, canWalk } from '../abilities/Walk';
 
 const {
+   add,
+   anchor,
+   area,
    isKeyDown,
    onKeyPress,
+   pos,
+   Rect,
+   sprite,
+   stay,
    vec2,
    wait,
+   z,
 } = k;
 
 type DieCallbackFn = (player: PeterComp)=>void;
 
 export interface PeterComp extends Comp {
+   isInitialized: boolean;
    isFrozen: boolean;
    isAlive: boolean;
    freeze: Function;
@@ -20,14 +41,53 @@ export interface PeterComp extends Comp {
    setAnim: (dir: Vec2) => void;
 }
 
-export function peter(): PeterComp {
+export interface PeterCompOpt {
+   pos: Vec2;
+   walkableObjects: {
+      floors: WalkableObj[];
+      stairs: WalkableObj[];
+      stairtops: WalkableObj[];
+   },
+};
+
+const PeterCompOptDefaults: PeterCompOpt = {
+   pos: vec2(0),
+   walkableObjects: {
+      floors: [],
+      stairs: [],
+      stairtops: [],
+   },
+};
+
+export type PeterObj = GameObj<SpriteComp & AnchorComp & AreaComp & PosComp & ZComp & PeterComp & SaltComp & ScoreComp & WalkComp>;
+
+export function addPeter(options: Partial<PeterCompOpt> = {}): PeterObj {
+   const opt = Object.assign({}, PeterCompOptDefaults, options);
+   return add([
+      sprite("peter", { anim: 'idle' }),
+      area({ shape: new Rect(vec2(0), 8, 15) }),
+      anchor('center'),
+      pos(opt.pos),
+      stay(['game', 'gameover']),
+      peter(opt),
+      canSalt(),
+      canScore(),
+      canWalk(),
+      z(10),
+      "player",
+   ]);
+}
+
+export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
+   const opt = Object.assign({}, PeterCompOptDefaults, options);
    const dieCallbacks: DieCallbackFn[] = [];
    let lives = 4;
    return {
       id: "peter",
       require: ["area", "sprite", "can-salt", "can-walk"],
       isFrozen: false,
-      isAlive: true,
+      isInitialized: false,
+      isAlive: false,
       add() {
          onKeyPress(key=>{
             if (key==='space') {
@@ -39,6 +99,7 @@ export function peter(): PeterComp {
             this.die();
          });
          this.onDirChange(this.setAnim);
+         this.setObjects(opt.walkableObjects);
       },
       onDie(fn) {
          dieCallbacks.push(fn);
@@ -76,7 +137,6 @@ export function peter(): PeterComp {
          this.play("fall");
          await wait(0.55);
          this.play("dead");
-         await wait(1);
          dieCallbacks.forEach(fn=>fn(this));
       },
    };
