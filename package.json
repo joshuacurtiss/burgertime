@@ -1,12 +1,15 @@
 {
    "name": "burgertime",
    "scripts": {
+      "cspell": "cspell . --show-suggestions --no-progress",
+      "standards": "npm run cspell",
       "start": "vite --host",
       "dev": "vite --host",
       "build": "vite build",
       "serve": "vite preview"
    },
    "devDependencies": {
+      "cspell": "8.8.3",
       "eslint": "9.3.0",
       "typescript": "4.9.5",
       "vite": "4.5.0"
