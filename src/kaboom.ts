@@ -7,6 +7,8 @@ export const k: KaboomCtx = kaboom({
    scale: 3,
 });
 
+export const BURGERTIME_BLUE = k.rgb(0, 149, 255);
+
 // Debugging
 const params = new URLSearchParams(location.search)
 const debugMode = params.has('debug')
