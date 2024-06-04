@@ -4,6 +4,8 @@ import {
    AreaComp,
    Comp,
    GameObj,
+   GamepadButton,
+   Key,
    PosComp,
    SpriteComp,
    Vec2,
@@ -17,8 +19,6 @@ const {
    add,
    anchor,
    area,
-   isKeyDown,
-   onKeyPress,
    pos,
    Rect,
    sprite,
@@ -28,16 +28,38 @@ const {
    z,
 } = k;
 
-type DieCallbackFn = (player: PeterComp)=>void;
+type CallbackFn = (player: PeterComp)=>void;
+
+export interface PeterControls {
+   keyboard: {
+      left: Key;
+      right: Key;
+      up: Key;
+      down: Key;
+      action: Key;
+   };
+   gamepad: {
+      left: GamepadButton;
+      right: GamepadButton;
+      up: GamepadButton;
+      down: GamepadButton;
+      action: GamepadButton;
+   }
+};
 
 export interface PeterComp extends Comp {
+   controls: PeterControls;
    isInitialized: boolean;
    isFrozen: boolean;
    isAlive: boolean;
+   level: number;
+   lives: number;
    freeze: Function;
+   action: Function;
    die: Function;
-   get lives(): number;
-   onDie: (fn: DieCallbackFn) => void;
+   win: Function;
+   onDie: (fn: CallbackFn) => void;
+   onWin: (fn: CallbackFn) => void;
    setAnim: (dir: Vec2) => void;
 }
 
@@ -80,20 +102,33 @@ export function addPeter(options: Partial<PeterCompOpt> = {}): PeterObj {
 
 export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
    const opt = Object.assign({}, PeterCompOptDefaults, options);
-   const dieCallbacks: DieCallbackFn[] = [];
-   let lives = 4;
+   const dieCallbacks: CallbackFn[] = [];
+   const winCallbacks: CallbackFn[] = [];
    return {
       id: "peter",
       require: ["area", "sprite", "can-salt", "can-walk"],
+      controls: {
+         keyboard: {
+            action: "space",
+            left: "left",
+            right: "right",
+            up: "up",
+            down: "down",
+         },
+         gamepad: {
+            action: "south",
+            left: "dpad-left",
+            right: "dpad-right",
+            up: "dpad-up",
+            down: "dpad-down",
+         },
+      },
       isFrozen: false,
       isInitialized: false,
       isAlive: false,
+      level: 0,
+      lives: 4,
       add() {
-         onKeyPress(key=>{
-            if (key==='space') {
-               this.throwSalt();
-            }
-         });
          this.onCollide("enemy", enemy=>{
             if (enemy.isStunned) return;
             this.die();
@@ -101,8 +136,14 @@ export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
          this.onDirChange(this.setAnim);
          this.setObjects(opt.walkableObjects);
       },
+      action() {
+         this.throwSalt();
+      },
       onDie(fn) {
          dieCallbacks.push(fn);
+      },
+      onWin(fn) {
+         winCallbacks.push(fn);
       },
       setAnim(newdir) {
          let anim = 'idle';
@@ -113,24 +154,22 @@ export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
          if (this.curAnim() !== anim) this.play(anim);
          this.flipX = flipX;
       },
-      update() {
-         if (this.isFrozen || !this.isAlive) return;
-         let dir = vec2(0);
-         if (isKeyDown("left")) dir = vec2(-1, 0);
-         else if (isKeyDown("right")) dir = vec2(1, 0);
-         else if (isKeyDown("up")) dir = vec2(0, -1);
-         else if (isKeyDown("down")) dir = vec2(0, 1);
-         this.setIntendedDir(dir);
-      },
       freeze() {
          this.isFrozen = true;
       },
-      get lives() {
-         return lives;
+      async win() {
+         this.freeze();
+         this.level+=1;
+         this.stop();
+         for (let i=0 ; i<10 ; i+=1) {
+            this.play(i % 2 ? 'celebrate' : 'idle');
+            await wait(0.4);
+         }
+         winCallbacks.forEach(fn=>fn(this));
       },
       async die() {
          this.isAlive = false;
-         lives-=1;
+         this.lives-=1;
          this.stop();
          this.frame = 14;
          await wait(1);

@@ -1,24 +1,31 @@
 import { k } from '../kaboom';
+import { addMenu } from '../objects/Menu';
+import { addMenuButton } from '../objects/MenuButton';
+import { addPeter } from '../objects/Peter';
 
 const {
    add,
    anchor,
-   color,
    go,
-   onKeyRelease,
    pos,
-   text,
+   sprite,
    vec2,
 } = k;
 
 export default function() {
    add([
-      text("Press enter to start", { size: 12 }),
-      pos(vec2(128, 120)),
-      anchor("center"),
-      color(255, 255, 255),
+      sprite('title'),
+      anchor('center'),
+      pos(vec2(128, 64)),
+   ])
+   addMenu([
+      addMenuButton({ text: '1 Player', pos: vec2(128, 120), action: ()=>{
+         const players = [ addPeter() ];
+         go('game', { players });
+      } }),
+      addMenuButton({ text: '2 Players', pos: vec2(128, 145), action: ()=>{
+         const players = [ addPeter(), addPeter() ];
+         go('game', { players });
+      } }),
    ]);
-
-   onKeyRelease("enter", ()=>go("game"));
-   onKeyRelease("space", ()=>go("game"));
 };

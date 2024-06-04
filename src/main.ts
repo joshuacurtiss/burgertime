@@ -1,4 +1,5 @@
 import { k } from './kaboom';
+import GameOverScene from './scenes/GameOverScene';
 import GameScene from './scenes/GameScene';
 import StartScene from './scenes/StartScene';
 
@@ -47,6 +48,7 @@ loadSprite("peter", "peter.png", {
       dead: { from: 17, to: 18, loop: true, speed: 8 }
    },
 });
+loadSprite("title", "title.png");
 loadSprite("floor", "floor.png", { sliceX: 2 });
 loadSprite("floor-stair-blue", "floor-stair-blue.png", { sliceX: 2 });
 loadSprite("floor-stair-green", "floor-stair-green.png", { sliceX: 2 });
@@ -60,4 +62,5 @@ loadSprite("stair-green", "stair-green.png", { sliceX: 2 });
 
 scene("start", StartScene);
 scene("game", GameScene);
-go("game");
+scene("gameover", GameOverScene);
+go("start");
