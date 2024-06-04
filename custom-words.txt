@@ -1,6 +1,11 @@
 anims
 burgertime
+Carboni
+dpad
+flac
 flatfloor
+fullpath
+gameover
 horiz
 newdir
 nvmrc
