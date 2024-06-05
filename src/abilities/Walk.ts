@@ -48,9 +48,9 @@ export function canWalk(): WalkComp {
    let txtPos: GameObj<PosComp & TextComp & ColorComp>;
    let txtFloor: GameObj<PosComp & TextComp & ColorComp>;
    let txtStair: GameObj<PosComp & TextComp & ColorComp>;
-   let floors: WalkableObj[];
-   let stairs: WalkableObj[];
-   let stairtops: WalkableObj[];
+   let floors: WalkableObj[] = [];
+   let stairs: WalkableObj[] = [];
+   let stairtops: WalkableObj[] = [];
 
    function withinFloor(obj: WalkableObj, pos: Vec2) {
       if (Math.abs(pos.y-obj.pos.y)>1.75) return false;
@@ -81,7 +81,7 @@ export function canWalk(): WalkComp {
 
    return {
       id: 'can-walk',
-      require: ["sprite"],
+      require: ["sprite", "can-alive", "can-freeze"],
       dir: vec2(0),
       speed: 55,
       stairSpeedMultiplier: 0.7,

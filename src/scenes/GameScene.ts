@@ -2,7 +2,8 @@ import { LevelOpt } from 'kaboom';
 import { k, BURGERTIME_BLUE } from '../kaboom';
 import { waitSpawnPowerup } from '../objects/Powerup';
 import { addEnemy } from '../objects/Enemy';
-import { ON_DIE, ON_WIN, ON_LIVES_CHANGE, PeterObj } from '../objects/Peter';
+import { ON_WIN, PeterObj } from '../objects/Peter';
+import { ON_DIE, ON_LIVES_CHANGE } from '../abilities/Alive';
 import { WalkableObj } from '../abilities/Walk';
 import { ON_SALT_CHANGE } from '../abilities/Salt';
 import { ON_SCORE_CHANGE } from '../abilities/Score';
@@ -181,11 +182,11 @@ export default function(options: Partial<GameSceneOpt>) {
             deadPlayer = currentPlayer,
             player = players[currentPlayer],
             someoneIsAlive = players.some(p=>p.lives>=0),
-            scene = player.lives<0 ? 'gameover' : 'game';
+            scene = player.isOutOfLives ? 'gameover' : 'game';
       if (action==='die' && someoneIsAlive) {
          do {
             if (++currentPlayer>=players.length) currentPlayer=0;
-         } while (someoneIsAlive && players[currentPlayer].lives<0);
+         } while (someoneIsAlive && players[currentPlayer].isOutOfLives);
       }
       if (scene==='gameover') go(scene, deadPlayer, { ...opt, currentPlayer });
       else go(scene, { ...opt, currentPlayer });

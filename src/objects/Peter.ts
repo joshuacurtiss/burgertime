@@ -11,6 +11,7 @@ import {
    Vec2,
    ZComp,
 } from 'kaboom';
+import { AliveComp, canAlive, ON_DIE } from '../abilities/Alive';
 import { FreezeComp, canFreeze } from '../abilities/Freeze';
 import { SaltComp, canSalt } from '../abilities/Salt';
 import { ScoreComp, canScore } from '../abilities/Score';
@@ -30,9 +31,7 @@ const {
    z,
 } = k;
 
-export const ON_DIE = 'die';
 export const ON_WIN = 'win';
-export const ON_LIVES_CHANGE = 'livesChange';
 
 export interface PeterControls {
    keyboard: {
@@ -54,13 +53,9 @@ export interface PeterControls {
 export interface PeterComp extends Comp {
    controls: PeterControls;
    isInitialized: boolean;
-   isAlive: boolean;
    level: number;
    action: Function;
-   die: Function;
    win: Function;
-   get lives(): number;
-   set lives(num: number);
    setAnim: (dir: Vec2) => void;
 }
 
@@ -82,7 +77,7 @@ const PeterCompOptDefaults: PeterCompOpt = {
    },
 };
 
-export type PeterObj = GameObj<SpriteComp & AnchorComp & AreaComp & PosComp & ZComp & PeterComp & FreezeComp & SaltComp & ScoreComp & WalkComp>;
+export type PeterObj = GameObj<SpriteComp & AnchorComp & AreaComp & PosComp & ZComp & PeterComp & AliveComp & FreezeComp & SaltComp & ScoreComp & WalkComp>;
 
 export function addPeter(options: Partial<PeterCompOpt> = {}): PeterObj {
    const opt = Object.assign({}, PeterCompOptDefaults, options);
@@ -93,6 +88,7 @@ export function addPeter(options: Partial<PeterCompOpt> = {}): PeterObj {
       pos(opt.pos),
       stay(['game', 'gameover']),
       peter(opt),
+      canAlive(),
       canFreeze(),
       canSalt(),
       canScore(),
@@ -104,10 +100,9 @@ export function addPeter(options: Partial<PeterCompOpt> = {}): PeterObj {
 
 export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
    const opt = Object.assign({}, PeterCompOptDefaults, options);
-   let lives = 4;
    return {
       id: "peter",
-      require: ["area", "sprite", "can-salt", "can-walk"],
+      require: ["area", "sprite", "can-alive", "can-freeze", "can-salt", "can-walk"],
       controls: {
          keyboard: {
             action: "space",
@@ -125,22 +120,24 @@ export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
          },
       },
       isInitialized: false,
-      isAlive: false,
       level: 0,
       add() {
          this.onCollide("enemy", enemy=>{
             if (enemy.isStunned) return;
             this.die();
          });
+         this.on(ON_DIE, ()=>{
+            this.frame = 14;
+            wait(1, ()=>{
+               play('die');
+               this.play("fall");
+            });
+            wait(1.55, ()=>{
+               this.play("dead");
+            });
+         });
          this.on(ON_DIR_CHANGE, this.setAnim);
          this.setObjects(opt.walkableObjects);
-      },
-      get lives() {
-         return lives;
-      },
-      set lives(num: number) {
-         lives = num;
-         this.trigger(ON_LIVES_CHANGE, num);
       },
       action() {
          this.throwSalt();
@@ -164,18 +161,6 @@ export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
             this.play(i % 2 ? 'celebrate' : 'idle');
             await wait(0.38);
          }
-      },
-      async die() {
-         this.isAlive = false;
-         this.lives-=1;
-         this.stop();
-         this.frame = 14;
-         this.trigger(ON_DIE, this);
-         await wait(1);
-         play('die');
-         this.play("fall");
-         await wait(0.55);
-         this.play("dead");
       },
    };
 }
