@@ -1,16 +1,14 @@
 import { Comp } from 'kaboom';
 
-type ScoreChangeCallbackFn = (score: number)=>void;
+export const ON_SCORE_CHANGE = 'scoreChange';
 
 export interface ScoreComp extends Comp {
    get score(): number;
    set score(score: number);
    incScore: (inc: number)=>void;
-   onScoreChange: (fn: ScoreChangeCallbackFn)=>void;
 }
 
 export function canScore(): ScoreComp {
-   const scoreChangeCallbacks: ScoreChangeCallbackFn[] = [];
    let score = 0;
    return {
       id: "can-score",
@@ -20,13 +18,10 @@ export function canScore(): ScoreComp {
       },
       set score(newScore) {
          score = newScore;
-         scoreChangeCallbacks.forEach(fn=>fn(score));
+         this.trigger(ON_SCORE_CHANGE, score);
       },
       incScore(inc) {
          this.setScore(score + inc);
-      },
-      onScoreChange(fn) {
-         scoreChangeCallbacks.push(fn);
       },
    };
 };

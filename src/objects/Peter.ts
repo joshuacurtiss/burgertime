@@ -13,7 +13,7 @@ import {
 } from 'kaboom';
 import { SaltComp, canSalt } from '../abilities/Salt';
 import { ScoreComp, canScore } from '../abilities/Score';
-import { WalkComp, WalkableObj, canWalk } from '../abilities/Walk';
+import { ON_DIR_CHANGE, WalkComp, WalkableObj, canWalk } from '../abilities/Walk';
 
 const {
    add,
@@ -28,7 +28,8 @@ const {
    z,
 } = k;
 
-type CallbackFn = (player: PeterComp)=>void;
+export const ON_DIE = 'die';
+export const ON_WIN = 'win';
 
 export interface PeterControls {
    keyboard: {
@@ -58,8 +59,6 @@ export interface PeterComp extends Comp {
    action: Function;
    die: Function;
    win: Function;
-   onDie: (fn: CallbackFn) => void;
-   onWin: (fn: CallbackFn) => void;
    setAnim: (dir: Vec2) => void;
 }
 
@@ -102,8 +101,6 @@ export function addPeter(options: Partial<PeterCompOpt> = {}): PeterObj {
 
 export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
    const opt = Object.assign({}, PeterCompOptDefaults, options);
-   const dieCallbacks: CallbackFn[] = [];
-   const winCallbacks: CallbackFn[] = [];
    return {
       id: "peter",
       require: ["area", "sprite", "can-salt", "can-walk"],
@@ -133,17 +130,11 @@ export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
             if (enemy.isStunned) return;
             this.die();
          });
-         this.onDirChange(this.setAnim);
+         this.on(ON_DIR_CHANGE, this.setAnim);
          this.setObjects(opt.walkableObjects);
       },
       action() {
          this.throwSalt();
-      },
-      onDie(fn) {
-         dieCallbacks.push(fn);
-      },
-      onWin(fn) {
-         winCallbacks.push(fn);
       },
       setAnim(newdir) {
          let anim = 'idle';
@@ -165,7 +156,7 @@ export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
             this.play(i % 2 ? 'celebrate' : 'idle');
             await wait(0.4);
          }
-         winCallbacks.forEach(fn=>fn(this));
+         this.trigger(ON_WIN, this);
       },
       async die() {
          this.isAlive = false;
@@ -176,7 +167,7 @@ export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
          this.play("fall");
          await wait(0.55);
          this.play("dead");
-         dieCallbacks.forEach(fn=>fn(this));
+         this.trigger(ON_DIE, this);
       },
    };
 }

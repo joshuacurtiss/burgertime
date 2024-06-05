@@ -22,8 +22,8 @@ const {
    WHITE,
 } = k;
 
+export const ON_DIR_CHANGE = 'dirChange';
 export type WalkableObj = GameObj<PosComp & TileComp & SpriteComp & AnchorComp>;
-export type DirChangeCallbackFn = (dir: Vec2) => void;
 
 interface WalkableStatus {
    floor: boolean;
@@ -33,12 +33,10 @@ interface WalkableStatus {
 
 export interface WalkComp extends Comp {
    dir: Vec2;
-   dirChangeCallbacks: DirChangeCallbackFn[];
    speed: number;
    stairSpeedMultiplier: number;
    calcIntents: (dir: Vec2) => WalkableStatus;
    calcWalkableStatus: () => WalkableStatus;
-   onDirChange: (fn: DirChangeCallbackFn) => void;
    restrictDir: (dir: Vec2) => Vec2;
    setDir: (dir: Vec2) => void;
    setIntendedDir: (dir: Vec2) => void;
@@ -85,7 +83,6 @@ export function canWalk(): WalkComp {
       id: 'can-walk',
       require: ["sprite"],
       dir: vec2(0),
-      dirChangeCallbacks: [],
       speed: 55,
       stairSpeedMultiplier: 0.7,
       add() {
@@ -127,9 +124,6 @@ export function canWalk(): WalkComp {
             stairtop: !!dir.y && within(stairtops, intendedLoc, withinStairtops),
          };
       },
-      onDirChange(fn) {
-         this.dirChangeCallbacks.push(fn);
-      },
       restrictDir(dir) {
          let newdir = dir.clone();
          let intents = this.calcIntents(newdir);
@@ -157,7 +151,7 @@ export function canWalk(): WalkComp {
             this.dir = dir;
             if (dir.x===0) this.snap('horiz');
             if (dir.y===0) this.snap('vert');
-            this.dirChangeCallbacks.forEach(fn=>fn(dir));
+            this.trigger(ON_DIR_CHANGE, dir);
          }
       },
       setIntendedDir(dir) {

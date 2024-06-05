@@ -1,5 +1,6 @@
 import { k } from '../kaboom';
 import { Comp } from 'kaboom';
+import { ON_DIR_CHANGE } from '../abilities/Walk';
 
 const {
    add,
@@ -12,18 +13,16 @@ const {
    z,
 } = k;
 
-type SaltChangeCallbackFn = (saltQty: number)=>void;
+export const ON_SALT_CHANGE = 'saltChange';
 
 export interface SaltComp extends Comp {
    saltDelay: number;
    throwSalt: ()=>void;
    get salt(): number;
    set salt(qty: number);
-   onSaltChange: (fn: SaltChangeCallbackFn)=>void;
 }
 
 export function canSalt(): SaltComp {
-   const saltChangeCallbacks: SaltChangeCallbackFn[] = [];
    let saltQty = 5;
    let saltDir = vec2(1, 0);
    return {
@@ -35,16 +34,13 @@ export function canSalt(): SaltComp {
       },
       set salt(qty) {
          saltQty = qty;
-         saltChangeCallbacks.forEach(fn=>fn(saltQty));
+         this.trigger(ON_SALT_CHANGE, saltQty);
       },
       add() {
-         this.onDirChange(newdir=>{
+         this.on(ON_DIR_CHANGE, newdir=>{
             // Set last MOVING direction, never the idle state.
             if (!newdir.isZero()) saltDir = newdir;
          });
-      },
-      onSaltChange(fn) {
-         saltChangeCallbacks.push(fn);
       },
       throwSalt() {
          if (this.isFrozen || !this.isAlive) return;

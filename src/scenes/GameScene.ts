@@ -2,7 +2,7 @@ import { LevelOpt } from 'kaboom';
 import { k, BURGERTIME_BLUE } from '../kaboom';
 import { waitSpawnPowerup } from '../objects/Powerup';
 import { addEnemy } from '../objects/Enemy';
-import { PeterObj } from '../objects/Peter';
+import { ON_DIE, ON_WIN, PeterObj } from '../objects/Peter';
 import { WalkableObj } from '../abilities/Walk';
 import LEVELS from '../levels.json';
 
@@ -152,8 +152,8 @@ export default function(options: Partial<GameSceneOpt>) {
    player.isAlive = true;
    player.isFrozen = true;
    if (!player.isInitialized) {
-      player.onDie(()=>goNextScene('die'));
-      player.onWin(()=>goNextScene('win'));
+      player.on(ON_DIE, ()=>goNextScene('die'));
+      player.on(ON_WIN, ()=>goNextScene('win'));
    }
 
    // Controls
