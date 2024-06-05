@@ -3,16 +3,23 @@
    "scripts": {
       "cspell": "cspell . --show-suggestions --no-progress",
       "standards": "npm run cspell",
+      "clean": "rimraf dist public/sfx",
+      "pack": "ts-node pack",
       "start": "vite --host",
       "test": "check-node-version --node 20.14.0 --npm 10.7.0",
-      "dev": "vite --host",
-      "build": "vite build",
+      "dev": "npm run pack && vite --host",
+      "build": "npm run pack && vite build",
       "serve": "vite preview"
    },
    "devDependencies": {
+      "@types/fluent-ffmpeg": "2.1.24",
+      "@types/node": "20.14.1",
       "check-node-version": "4.2.1",
       "cspell": "8.8.3",
       "eslint": "9.3.0",
+      "fluent-ffmpeg": "2.1.3",
+      "rimraf": "5.0.7",
+      "ts-node": "10.9.2",
       "typescript": "4.9.5",
       "vite": "4.5.0"
    },
