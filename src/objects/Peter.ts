@@ -31,6 +31,7 @@ const {
 
 export const ON_DIE = 'die';
 export const ON_WIN = 'win';
+export const ON_LIVES_CHANGE = 'livesChange';
 
 export interface PeterControls {
    keyboard: {
@@ -55,11 +56,12 @@ export interface PeterComp extends Comp {
    isFrozen: boolean;
    isAlive: boolean;
    level: number;
-   lives: number;
    freeze: Function;
    action: Function;
    die: Function;
    win: Function;
+   get lives(): number;
+   set lives(num: number);
    setAnim: (dir: Vec2) => void;
 }
 
@@ -102,6 +104,7 @@ export function addPeter(options: Partial<PeterCompOpt> = {}): PeterObj {
 
 export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
    const opt = Object.assign({}, PeterCompOptDefaults, options);
+   let lives = 4;
    return {
       id: "peter",
       require: ["area", "sprite", "can-salt", "can-walk"],
@@ -125,7 +128,6 @@ export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
       isInitialized: false,
       isAlive: false,
       level: 0,
-      lives: 4,
       add() {
          this.onCollide("enemy", enemy=>{
             if (enemy.isStunned) return;
@@ -133,6 +135,13 @@ export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
          });
          this.on(ON_DIR_CHANGE, this.setAnim);
          this.setObjects(opt.walkableObjects);
+      },
+      get lives() {
+         return lives;
+      },
+      set lives(num: number) {
+         lives = num;
+         this.trigger(ON_LIVES_CHANGE, num);
       },
       action() {
          this.throwSalt();

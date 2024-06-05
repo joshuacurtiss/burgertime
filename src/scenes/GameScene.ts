@@ -2,7 +2,7 @@ import { LevelOpt } from 'kaboom';
 import { k, BURGERTIME_BLUE } from '../kaboom';
 import { waitSpawnPowerup } from '../objects/Powerup';
 import { addEnemy } from '../objects/Enemy';
-import { ON_DIE, ON_WIN, PeterObj } from '../objects/Peter';
+import { ON_DIE, ON_WIN, ON_LIVES_CHANGE, PeterObj } from '../objects/Peter';
 import { WalkableObj } from '../abilities/Walk';
 import { ON_SALT_CHANGE } from '../abilities/Salt';
 import { ON_SCORE_CHANGE } from '../abilities/Score';
@@ -108,16 +108,16 @@ export default function(options: Partial<GameSceneOpt>) {
       pos(216, 8),
    ]);
    ui.add([
-      text(player.lives.toString(), { size: UI_FONT_SIZE }),
-      pos(230, 8),
-   ]);
-   ui.add([
       text(`${opt.currentPlayer+1} UP`, { size: UI_FONT_SIZE }),
       pos(16, 8),
    ]);
    ui.add([
       text('HI', { size: UI_FONT_SIZE }),
       pos(112, 8),
+   ]);
+   const txtScore = ui.add([
+      text(player.score.toString(), { size: UI_FONT_SIZE, align: 'right', width: 50 }),
+      pos(48, 8),
    ]);
    const txtHiScore = ui.add([
       text('20000', { size: UI_FONT_SIZE, align: 'right', width: 50 }),
@@ -127,10 +127,11 @@ export default function(options: Partial<GameSceneOpt>) {
       text(player.salt.toString(), { size: UI_FONT_SIZE }),
       pos(198, 8),
    ]);
-   const txtScore = ui.add([
-      text(player.score.toString(), { size: UI_FONT_SIZE, align: 'right', width: 50 }),
-      pos(48, 8),
+   const txtLives = ui.add([
+      text(player.lives.toString(), { size: UI_FONT_SIZE }),
+      pos(230, 8),
    ]);
+   player.on(ON_LIVES_CHANGE, (qty: number)=>txtLives.text = qty<0 ? '0' : qty.toString());
    player.on(ON_SALT_CHANGE, (qty: number)=>txtPepper.text = qty.toString());
    player.on(ON_SCORE_CHANGE, (score: number)=>{
       txtScore.text = score.toString();
