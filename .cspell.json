@@ -6,6 +6,8 @@
       ".gitignore",
       ".vscode",
       "dist",
+      "public",
+      "resources",
       "node_modules"
    ],
    "dictionaryDefinitions": [
