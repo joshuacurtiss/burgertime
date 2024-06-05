@@ -95,8 +95,10 @@ export default function(options: Partial<GameSceneOpt>) {
    const music = play('music', { paused: true, loop: true, volume: 0.6 });
 
    // UI Setup
-   const ui = add([fixed(), z(100)]);
    const UI_FONT_SIZE = 10;
+   const ui = add([
+      fixed(),
+   ]);
    ui.add([
       sprite('head-p'),
       pos(184, 8),
@@ -169,7 +171,7 @@ export default function(options: Partial<GameSceneOpt>) {
    waitSpawnPowerup();
 
    // Enemy Setup
-   addEnemy({ type: 'hotdog', pos: vec2(160, 173) });
+   addEnemy({ type: 'hotdog', pos: vec2(224, 165) });
 
    // Next Scene management (when player dies or wins)
    function goNextScene(action: 'win' | 'die') {
@@ -191,7 +193,7 @@ export default function(options: Partial<GameSceneOpt>) {
    // Player setup
    opt.players.forEach(p=>p.pos = vec2(-20));
    player.level = levelNumber;
-   player.pos = vec2(128, 173);
+   player.pos = vec2(128, 165);
    player.setObjects({ floors, stairs, stairtops });
    player.setAnim(vec2(0));
    player.isAlive = true;

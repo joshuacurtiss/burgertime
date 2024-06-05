@@ -41,7 +41,7 @@ export interface PowerupCompOpt {
 }
 
 const PowerupCompOptDefaults: PowerupCompOpt = {
-   pos: vec2(128, 108),
+   pos: vec2(128, 100),
    timeout: 20,
    type: 0,
 };
