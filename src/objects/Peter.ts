@@ -11,6 +11,7 @@ import {
    Vec2,
    ZComp,
 } from 'kaboom';
+import { FreezeComp, canFreeze } from '../abilities/Freeze';
 import { SaltComp, canSalt } from '../abilities/Salt';
 import { ScoreComp, canScore } from '../abilities/Score';
 import { ON_DIR_CHANGE, WalkComp, WalkableObj, canWalk } from '../abilities/Walk';
@@ -53,10 +54,8 @@ export interface PeterControls {
 export interface PeterComp extends Comp {
    controls: PeterControls;
    isInitialized: boolean;
-   isFrozen: boolean;
    isAlive: boolean;
    level: number;
-   freeze: Function;
    action: Function;
    die: Function;
    win: Function;
@@ -83,7 +82,7 @@ const PeterCompOptDefaults: PeterCompOpt = {
    },
 };
 
-export type PeterObj = GameObj<SpriteComp & AnchorComp & AreaComp & PosComp & ZComp & PeterComp & SaltComp & ScoreComp & WalkComp>;
+export type PeterObj = GameObj<SpriteComp & AnchorComp & AreaComp & PosComp & ZComp & PeterComp & FreezeComp & SaltComp & ScoreComp & WalkComp>;
 
 export function addPeter(options: Partial<PeterCompOpt> = {}): PeterObj {
    const opt = Object.assign({}, PeterCompOptDefaults, options);
@@ -94,6 +93,7 @@ export function addPeter(options: Partial<PeterCompOpt> = {}): PeterObj {
       pos(opt.pos),
       stay(['game', 'gameover']),
       peter(opt),
+      canFreeze(),
       canSalt(),
       canScore(),
       canWalk(),
@@ -124,7 +124,6 @@ export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
             down: "dpad-down",
          },
       },
-      isFrozen: false,
       isInitialized: false,
       isAlive: false,
       level: 0,
@@ -154,9 +153,6 @@ export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
          else if (newdir.x) anim = 'walk';
          if (this.curAnim() !== anim) this.play(anim);
          this.flipX = flipX;
-      },
-      freeze() {
-         this.isFrozen = true;
       },
       async win() {
          this.freeze();
