@@ -4,6 +4,8 @@ import { waitSpawnPowerup } from '../objects/Powerup';
 import { addEnemy } from '../objects/Enemy';
 import { ON_DIE, ON_WIN, PeterObj } from '../objects/Peter';
 import { WalkableObj } from '../abilities/Walk';
+import { ON_SALT_CHANGE } from '../abilities/Salt';
+import { ON_SCORE_CHANGE } from '../abilities/Score';
 import LEVELS from '../levels.json';
 
 const {
@@ -88,7 +90,45 @@ export default function(options: Partial<GameSceneOpt>) {
    const player = opt.players[opt.currentPlayer];
 
    // UI Setup
-   const ui = add([fixed(), z(100)])
+   const ui = add([fixed(), z(100)]);
+   const UI_FONT_SIZE = 10;
+   ui.add([
+      sprite('head-p'),
+      pos(184, 8),
+   ]);
+   ui.add([
+      sprite('head-h'),
+      pos(216, 8),
+   ]);
+   ui.add([
+      text(player.lives.toString(), { size: UI_FONT_SIZE }),
+      pos(230, 8),
+   ]);
+   ui.add([
+      text(`${opt.currentPlayer+1} UP`, { size: UI_FONT_SIZE }),
+      pos(16, 8),
+   ]);
+   ui.add([
+      text('HI', { size: UI_FONT_SIZE }),
+      pos(112, 8),
+   ]);
+   const txtHiScore = ui.add([
+      text('20000', { size: UI_FONT_SIZE, align: 'right', width: 50 }),
+      pos(124, 8),
+   ]);
+   const txtPepper = ui.add([
+      text(player.salt.toString(), { size: UI_FONT_SIZE }),
+      pos(198, 8),
+   ]);
+   const txtScore = ui.add([
+      text(player.score.toString(), { size: UI_FONT_SIZE, align: 'right', width: 50 }),
+      pos(48, 8),
+   ]);
+   player.on(ON_SALT_CHANGE, (qty: number)=>txtPepper.text = qty.toString());
+   player.on(ON_SCORE_CHANGE, (score: number)=>{
+      txtScore.text = score.toString();
+      if (parseInt(txtHiScore.text)<score) txtHiScore.text = score.toString();
+   });
 
    // Level setup
    const levelNumber = player.level<LEVELS.length ? player.level : 0;
