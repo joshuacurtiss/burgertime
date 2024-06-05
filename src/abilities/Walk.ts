@@ -1,25 +1,16 @@
 import { k } from '../kaboom';
 import {
    AnchorComp,
-   ColorComp,
    Comp,
    GameObj,
    PosComp,
    SpriteComp,
-   TextComp,
    TileComp,
    Vec2,
 } from 'kaboom';
 
 const {
-   add,
-   color,
-   debug,
-   pos,
-   text,
    vec2,
-   RED,
-   WHITE,
 } = k;
 
 export const ON_DIR_CHANGE = 'dirChange';
@@ -45,9 +36,6 @@ export interface WalkComp extends Comp {
 }
 
 export function canWalk(): WalkComp {
-   let txtPos: GameObj<PosComp & TextComp & ColorComp>;
-   let txtFloor: GameObj<PosComp & TextComp & ColorComp>;
-   let txtStair: GameObj<PosComp & TextComp & ColorComp>;
    let floors: WalkableObj[] = [];
    let stairs: WalkableObj[] = [];
    let stairtops: WalkableObj[] = [];
@@ -85,25 +73,6 @@ export function canWalk(): WalkComp {
       dir: vec2(0),
       speed: 55,
       stairSpeedMultiplier: 0.7,
-      add() {
-         if (debug.inspect) {
-            txtFloor = add([
-               text('Floor', { size: 5 }),
-               pos(40, 5.5),
-               color(WHITE),
-            ]);
-            txtStair = add([
-               text('Stair', { size: 5 }),
-               pos(65, 5.5),
-               color(WHITE),
-            ]);
-            txtPos = add([
-               text('', { size: 5 }),
-               pos(90, 5.5),
-               color(WHITE),
-            ]);
-         }
-      },
       setObjects(obj) {
          floors = obj.floors;
          stairs = obj.stairs;
@@ -180,13 +149,6 @@ export function canWalk(): WalkComp {
          // Move
          if (!this.dir.isZero()) {
             this.move((this.dir as Vec2).scale(this.dir.y ? this.speed * this.stairSpeedMultiplier : this.speed));
-         }
-         // Update debugging dashboard
-         if (debug.inspect) {
-            const status = this.calcWalkableStatus();
-            txtPos.text = `${this.pos.x.toFixed(2)}, ${this.pos.y.toFixed(2)}`;
-            txtStair.color = status.stair ? RED : WHITE;
-            txtFloor.color = status.floor ? RED : WHITE;
          }
       },
    };
