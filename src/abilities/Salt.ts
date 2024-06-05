@@ -6,6 +6,7 @@ const {
    add,
    anchor,
    area,
+   play,
    pos,
    sprite,
    vec2,
@@ -44,10 +45,7 @@ export function canSalt(): SaltComp {
       },
       throwSalt() {
          if (this.isFrozen || !this.isAlive) return;
-         if (!this.salt) {
-            // TODO: Play empty salt sound
-            return;
-         }
+         if (!this.salt) return;
          this.salt-=1;
          const saltPos = this.pos.sub(0, this.height/4).add(saltDir.x*this.width*0.75, saltDir.y*this.height),
                saltTop = add([
@@ -66,7 +64,7 @@ export function canSalt(): SaltComp {
                   z(50),
                   "salt",
                ]);
-         // TODO: Play salt sound
+         play('pepper');
          const anim = saltDir.x ? 'throw' : saltDir.y<0 ? 'throw-up' : 'throw-down';
          this.flipX = saltDir.x>0;
          this.play(anim);

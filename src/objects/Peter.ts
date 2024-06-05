@@ -19,6 +19,7 @@ const {
    add,
    anchor,
    area,
+   play,
    pos,
    Rect,
    sprite,
@@ -150,24 +151,26 @@ export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
       },
       async win() {
          this.freeze();
-         this.level+=1;
          this.stop();
-         for (let i=0 ; i<10 ; i+=1) {
-            this.play(i % 2 ? 'celebrate' : 'idle');
-            await wait(0.4);
-         }
+         this.level+=1;
          this.trigger(ON_WIN, this);
+         play('win');
+         for (let i=0 ; i<8 ; i+=1) {
+            this.play(i % 2 ? 'celebrate' : 'idle');
+            await wait(0.38);
+         }
       },
       async die() {
          this.isAlive = false;
          this.lives-=1;
          this.stop();
          this.frame = 14;
+         this.trigger(ON_DIE, this);
          await wait(1);
+         play('die');
          this.play("fall");
          await wait(0.55);
          this.play("dead");
-         this.trigger(ON_DIE, this);
       },
    };
 }

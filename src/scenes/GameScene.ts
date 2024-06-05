@@ -18,6 +18,8 @@ const {
    go,
    isKeyDown,
    onKeyPress,
+   on,
+   play,
    pos,
    rect,
    sprite,
@@ -88,6 +90,9 @@ const GameSceneOptDefaults: GameSceneOpt = {
 export default function(options: Partial<GameSceneOpt>) {
    const opt = Object.assign({}, GameSceneOptDefaults, options);
    const player = opt.players[opt.currentPlayer];
+
+   // Music Setup
+   const music = play('music', { paused: true, loop: true, volume: 0.6 });
 
    // UI Setup
    const ui = add([fixed(), z(100)]);
@@ -179,8 +184,8 @@ export default function(options: Partial<GameSceneOpt>) {
             if (++currentPlayer>=players.length) currentPlayer=0;
          } while (someoneIsAlive && players[currentPlayer].lives<0);
       }
-      if (scene==='gameover') wait(3, ()=>go(scene, deadPlayer, { ...opt, currentPlayer }));
-      else wait(3, ()=>go(scene, { ...opt, currentPlayer }));
+      if (scene==='gameover') go(scene, deadPlayer, { ...opt, currentPlayer });
+      else go(scene, { ...opt, currentPlayer });
    }
 
    // Player setup
@@ -191,10 +196,14 @@ export default function(options: Partial<GameSceneOpt>) {
    player.setAnim(vec2(0));
    player.isAlive = true;
    player.isFrozen = true;
-   if (!player.isInitialized) {
-      player.on(ON_DIE, ()=>goNextScene('die'));
-      player.on(ON_WIN, ()=>goNextScene('win'));
-   }
+   on(ON_DIE, 'player', ()=>{
+      wait(0.5, ()=>music.stop());
+      wait(5, ()=>goNextScene('die'));
+   });
+   on(ON_WIN, 'player', ()=>{
+      music.stop();
+      wait(5, ()=>goNextScene('win'));
+   });
 
    // Controls
    onKeyPress(player.controls.keyboard.action, ()=>player.action());
@@ -225,9 +234,12 @@ export default function(options: Partial<GameSceneOpt>) {
    ]);
    wait(5, ()=>{
       dlg.destroy();
-      wait(player.isInitialized ? 0.5 : 5, ()=>player.isFrozen = false);
+      wait(player.isInitialized ? 0.25 : 3, ()=>{
+         player.isFrozen = false;
+         music.play();
+      });
       if (!player.isInitialized) {
-         // TODO: Play first-time music
+         play('start');
          player.isInitialized = true;
       }
    })

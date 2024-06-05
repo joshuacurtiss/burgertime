@@ -5,11 +5,25 @@ import StartScene from './scenes/StartScene';
 
 const {
    loadRoot,
+   loadSound,
    loadSprite,
    go,
    scene,
 } = k;
 
+loadRoot("sfx/");
+loadSound("burger_drop", "burger_drop.ogg");
+loadSound("burger_floor", "burger_floor.ogg");
+loadSound("burger_step", "burger_step.ogg");
+loadSound("die", "die.ogg");
+loadSound("enemy_fall", "enemy_fall.ogg");
+loadSound("enemy_squash", "enemy_squash.ogg");
+loadSound("item", "item.ogg");
+loadSound("music", "music.ogg");
+loadSound("pepper", "pepper.ogg");
+loadSound("powerup", "powerup.ogg");
+loadSound("start", "start.ogg");
+loadSound("win", "win.ogg");
 loadRoot("sprites/");
 loadSprite("burger", "burger.png", { sliceX: 28 });
 loadSprite("enemies", "enemies.png", {

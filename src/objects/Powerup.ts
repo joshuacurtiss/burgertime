@@ -16,6 +16,7 @@ const {
    area,
    color,
    lifespan,
+   play,
    pos,
    randi,
    sprite,
@@ -69,7 +70,9 @@ export function powerup(options: Partial<PowerupCompOpt> = {}): PowerupComp {
          return (this.type+1)*500 + pointsRandomness;
       },
       add() {
+         play('item');
          this.onCollide('player', player=>{
+            play('powerup');
             player.salt+=1;
             player.score+=this.points;
             const scoreIndicator = add([
