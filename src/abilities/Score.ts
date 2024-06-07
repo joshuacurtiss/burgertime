@@ -10,7 +10,6 @@ const NEW_LIFE_SCORE_THRESHOLD = 20000;
 export interface ScoreComp extends Comp {
    get score(): number;
    set score(score: number);
-   incScore: (inc: number)=>void;
 }
 
 export function canScore(): ScoreComp {
@@ -28,9 +27,6 @@ export function canScore(): ScoreComp {
          }
          score = newScore;
          this.trigger(ON_SCORE_CHANGE, score);
-      },
-      incScore(inc) {
-         this.setScore(score + inc);
       },
    };
 };
