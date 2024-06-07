@@ -173,7 +173,19 @@ export default function(options: Partial<GameSceneOpt>) {
    waitSpawnPowerup();
 
    // Enemy Setup
-   addEnemy({ type: 'hotdog', pos: vec2(224, 165) });
+   const enemies = [
+      addEnemy({ type: 'hotdog', pos: vec2(224, 165) }),
+      addEnemy({ type: 'egg', pos: vec2(32, 165) }),
+      addEnemy({ type: 'hotdog', pos: vec2(32, 21) }),
+      addEnemy({ type: 'hotdog', pos: vec2(224, 21) }),
+      addEnemy({ type: 'hotdog', pos: vec2(64, 21) }),
+   ];
+   enemies.forEach(enemy=>{
+      enemy.freeze();
+      enemy.setObjects({ floors, stairs, stairtops });
+      enemy.target = player;
+   });
+   wait(8, ()=>enemies.forEach(enemy=>enemy.unfreeze()));
 
    // Next Scene management (when player dies or wins)
    function goNextScene(action: 'win' | 'die') {
