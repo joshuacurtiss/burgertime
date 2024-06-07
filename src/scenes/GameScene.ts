@@ -216,7 +216,10 @@ export default function(options: Partial<GameSceneOpt>) {
    }
 
    // Player setup
-   opt.players.forEach(p=>p.pos = vec2(-20));
+   opt.players.forEach(p=>{
+      p.freeze();
+      p.pos = vec2(-20);
+   });
    player.level = levelNumber;
    player.pos = vec2(128, 165);
    player.setObjects({ floors, stairs, stairtops });
