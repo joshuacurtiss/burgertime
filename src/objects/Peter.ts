@@ -21,6 +21,7 @@ const {
    add,
    anchor,
    area,
+   dt,
    play,
    pos,
    Rect,
@@ -53,9 +54,12 @@ export interface PeterControls {
 export interface PeterComp extends Comp {
    controls: PeterControls;
    isInitialized: boolean;
-   level: number;
    action: Function;
    win: Function;
+   get level(): number;
+   set level(num: number);
+   get levelTime(): number;
+   set levelTime(num: number);
    setAnim: (dir: Vec2) => void;
 }
 
@@ -100,6 +104,8 @@ export function addPeter(options: Partial<PeterCompOpt> = {}): PeterObj {
 
 export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
    const opt = Object.assign({}, PeterCompOptDefaults, options);
+   let level: number = 0;
+   let levelTime: number = 0;
    return {
       id: "peter",
       require: ["area", "sprite", "can-alive", "can-freeze", "can-salt", "can-walk"],
@@ -120,7 +126,6 @@ export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
          },
       },
       isInitialized: false,
-      level: 0,
       add() {
          this.onCollide("enemy", enemy=>{
             if (enemy.isStunned) return;
@@ -141,6 +146,23 @@ export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
       },
       action() {
          this.throwSalt();
+      },
+      update() {
+         if (this.isFrozen || !this.isAlive) return;
+         levelTime+=dt();
+      },
+      get level() {
+         return level;
+      },
+      set level(num) {
+         if (level!==num) levelTime = 0;
+         level = num;
+      },
+      get levelTime() {
+         return levelTime;
+      },
+      set levelTime(num: number) {
+         levelTime = num;
       },
       setAnim(newdir) {
          let anim = 'idle';
