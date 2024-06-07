@@ -12,7 +12,7 @@ import {
 import { canAlive, AliveComp } from '../abilities/Alive';
 import { canChase, ChaseComp } from '../abilities/Chase';
 import { canFreeze, FreezeComp } from '../abilities/Freeze';
-import { canWalk, WalkComp } from '../abilities/Walk';
+import { canWalk, ON_DIR_CHANGE, WalkComp } from '../abilities/Walk';
 
 const {
    add,
@@ -33,6 +33,7 @@ export interface EnemyComp extends Comp {
    stunDelay: number;
    get isStunned(): boolean;
    stun: ()=>void;
+   setAnim: (dir: Vec2) => void;
 }
 
 export interface EnemyCompOpt {
@@ -84,8 +85,17 @@ export function enemy(options: Partial<EnemyCompOpt> = {}): EnemyComp {
             this.play(`${this.type}-walk`);
          });
       },
+      setAnim(newdir) {
+         let anim = 'walk';
+         let flipX = newdir.x>0;
+         if (newdir.y<0) anim = 'up';
+         else if (newdir.y>0) anim = 'down';
+         if (this.curAnim() !== anim) this.play(`${this.type}-${anim}`);
+         this.flipX = flipX;
+      },
       add() {
          this.speed = 28;
+         this.on(ON_DIR_CHANGE, this.setAnim);
          this.onCollide('salt', this.stun);
       },
    };
