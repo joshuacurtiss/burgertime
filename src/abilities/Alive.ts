@@ -5,6 +5,7 @@ export const ON_LIVES_CHANGE = 'livesChange';
 
 export interface AliveComp extends Comp {
    die: Function;
+   isInvulnerable: boolean;
    get isOutOfLives(): boolean;
    get isAlive(): boolean;
    set isAlive(bool: boolean);
@@ -18,6 +19,7 @@ export function canAlive(): AliveComp {
    return {
       id: "can-alive",
       require: ["sprite"],
+      isInvulnerable: false,
       get isOutOfLives() {
          return lives<0;
       },
@@ -35,7 +37,7 @@ export function canAlive(): AliveComp {
          this.trigger(ON_LIVES_CHANGE, num);
       },
       die() {
-         if (!this.isAlive) return false;
+         if (!this.isAlive || this.isInvulnerable) return;
          this.isAlive = false;
          this.lives-=1;
          this.stop();
