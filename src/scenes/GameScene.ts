@@ -229,11 +229,13 @@ export default function(options: Partial<GameSceneOpt>) {
    player.isAlive = true;
    player.isFrozen = true;
    on(ON_DIE, 'player', ()=>{
+      enemies.forEach(enemy=>enemy.freeze());
       wait(0.5, ()=>music.stop());
       wait(5, ()=>goNextScene('die'));
    });
    on(ON_WIN, 'player', ()=>{
       music.stop();
+      enemies.forEach(enemy=>enemy.freeze());
       wait(5, ()=>goNextScene('win'));
    });
 
