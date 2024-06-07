@@ -186,6 +186,17 @@ export default function(options: Partial<GameSceneOpt>) {
       enemy.target = player;
    });
    wait(8, ()=>enemies.forEach(enemy=>enemy.unfreeze()));
+   const ENEMY_SPEED_CHECK_FREQUENCY = 30;
+   const ENEMY_SPEED_INC = 3;
+   const enemyInitialSpeed = enemies[0].speed;
+   let lastEnemySpeedCheck=0;
+   onUpdate('player', p=>{
+      const levelTime = Math.floor(p.levelTime);
+      if (levelTime-lastEnemySpeedCheck>=ENEMY_SPEED_CHECK_FREQUENCY) {
+         lastEnemySpeedCheck = levelTime;
+         enemies.forEach(enemy=>enemy.speed = enemyInitialSpeed + Math.floor(levelTime/ENEMY_SPEED_CHECK_FREQUENCY*ENEMY_SPEED_INC));
+      }
+   });
 
    // Next Scene management (when player dies or wins)
    function goNextScene(action: 'win' | 'die') {
