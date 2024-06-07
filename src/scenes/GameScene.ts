@@ -1,4 +1,4 @@
-import { LevelOpt } from 'kaboom';
+import { LevelOpt, TimerController } from 'kaboom';
 import { k, BURGERTIME_BLUE } from '../kaboom';
 import { waitSpawnPowerup } from '../objects/Powerup';
 import { addEnemy } from '../objects/Enemy';
@@ -15,6 +15,7 @@ const {
    anchor,
    area,
    color,
+   debug,
    fixed,
    go,
    isKeyDown,
@@ -22,6 +23,7 @@ const {
    on,
    play,
    pos,
+   randi,
    rect,
    sprite,
    text,
@@ -246,6 +248,50 @@ export default function(options: Partial<GameSceneOpt>) {
       else if (isKeyDown(up)) dir = vec2(0, -1);
       else if (isKeyDown(down)) dir = vec2(0, 1);
       p.setIntendedDir(dir);
+   });
+
+   // Cheat Codes
+   let keylog = '';
+   let keylogTimer: TimerController;
+   function debugLog(msg: string) {
+      debug.showLog = true;
+      debug.log(msg);
+   }
+   onKeyPress(key=>{
+      if (key.length>1) return;
+      if (keylogTimer) keylogTimer.cancel();
+      keylog += key.toLowerCase();
+      keylogTimer=wait(5, ()=>{
+         keylog='';
+         debug.showLog = debug.inspect;
+      });
+      if (keylog.slice(-6)==='invuln') {
+         player.isInvulnerable = !player.isInvulnerable;
+         debugLog(`Invulnerability: ${player.isInvulnerable}`);
+      } else if (keylog.slice(-5)==='crazy') {
+         player.speed *= 2;
+         player.levelTime += ENEMY_SPEED_CHECK_FREQUENCY * 15;
+         debugLog(`It's gonna get crazy up in here!`);
+      } else if (keylog.slice(-4)==='gold') {
+         player.score += randi(75, 150) * 100;
+         debugLog(`Score: ${player.score}`);
+      } else if (keylog.slice(-4)==='gone') {
+         while (enemies.length) enemies.pop()?.destroy();
+         debugLog(`Everybody's gone now...`);
+      } else if (keylog.slice(-4)==='life') {
+         player.lives+=1;
+         debugLog(`Lives: ${player.lives}`);
+      } else if (keylog.slice(-5)==='music') {
+         if (!music.paused) music.stop();
+         else music.play();
+         debugLog(`Music: ${music.paused ? 'paused' : 'playing'}`)
+      } else if (keylog.slice(-4)==='salt' || keylog.slice(-6)==='pepper') {
+         player.salt+=1;
+         debugLog(`Pepper: ${player.salt}`);
+      } else if (keylog.slice(-3)==='win') {
+         player.win();
+         debugLog('Good job... NOT.');
+      }
    });
 
    // "Player Ready" message and music pause
