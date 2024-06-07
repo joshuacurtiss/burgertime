@@ -86,7 +86,7 @@ export function canWalk(): WalkComp {
          };
       },
       calcIntents(dir) {
-         const intendedLoc = this.pos.add(0, this.area.shape.height/2).add(dir.x * this.area.shape.width/1.5, dir.y<=0 ? dir.y : 3.75);
+         const intendedLoc = this.pos.add(0, this.height/2.1).add(dir.x * this.width/2, dir.y<=0 ? dir.y : 3.75);
          return {
             floor: !!dir.x && within(floors, intendedLoc.add(0, -4.5), withinFloor),
             stair: !!dir.y && within(stairs, intendedLoc, withinStairs),
