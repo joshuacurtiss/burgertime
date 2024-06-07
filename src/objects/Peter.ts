@@ -87,7 +87,7 @@ export function addPeter(options: Partial<PeterCompOpt> = {}): PeterObj {
    const opt = Object.assign({}, PeterCompOptDefaults, options);
    return add([
       sprite("peter", { anim: 'idle' }),
-      area({ shape: new Rect(vec2(0), 8, 15) }),
+      area({ shape: new Rect(vec2(0, 2), 8, 10) }),
       anchor('center'),
       pos(opt.pos),
       stay(['game', 'gameover']),

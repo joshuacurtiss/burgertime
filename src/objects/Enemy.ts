@@ -52,7 +52,7 @@ export function addEnemy(options: Partial<EnemyCompOpt> = {}): GameObj<SpriteCom
       sprite('enemies', { anim: `${opt.type}-walk` }),
       anchor('center'),
       pos(opt.pos),
-      area({ shape: new Rect(vec2(0), 7, 15), offset: vec2(0), collisionIgnore: ['powerup'] }),
+      area({ shape: new Rect(vec2(0, 2), 7, 10), offset: vec2(0), collisionIgnore: ['powerup'] }),
       z(20),
       opt.type,
       canAlive(),
