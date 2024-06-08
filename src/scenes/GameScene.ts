@@ -33,6 +33,8 @@ const {
    z,
 } = k;
 
+const CURRENT_PLAYER_TAG = 'current-player';
+
 const levelConf: LevelOpt = {
    tileWidth: 8,
    tileHeight: 8,
@@ -192,7 +194,7 @@ export default function(options: Partial<GameSceneOpt>) {
    const ENEMY_SPEED_INC = 3;
    const enemyInitialSpeed = enemies[0].speed;
    let lastEnemySpeedCheck=0;
-   onUpdate('player', p=>{
+   onUpdate(CURRENT_PLAYER_TAG, p=>{
       const levelTime = Math.floor(p.levelTime);
       if (levelTime-lastEnemySpeedCheck>=ENEMY_SPEED_CHECK_FREQUENCY) {
          lastEnemySpeedCheck = levelTime;
@@ -220,20 +222,22 @@ export default function(options: Partial<GameSceneOpt>) {
    // Player setup
    opt.players.forEach(p=>{
       p.freeze();
+      p.unuse(CURRENT_PLAYER_TAG);
       p.pos = vec2(-20);
    });
+   player.use(CURRENT_PLAYER_TAG);
    player.level = levelNumber;
    player.pos = vec2(128, 165);
    player.setObjects({ floors, stairs, stairtops });
    player.setAnim(vec2(0));
    player.isAlive = true;
    player.isFrozen = true;
-   on(ON_DIE, 'player', ()=>{
+   on(ON_DIE, CURRENT_PLAYER_TAG, ()=>{
       enemies.forEach(enemy=>enemy.freeze());
       wait(0.5, ()=>music.stop());
       wait(5, ()=>goNextScene('die'));
    });
-   on(ON_WIN, 'player', ()=>{
+   on(ON_WIN, CURRENT_PLAYER_TAG, ()=>{
       music.stop();
       enemies.forEach(enemy=>enemy.freeze());
       wait(5, ()=>goNextScene('win'));
@@ -241,7 +245,7 @@ export default function(options: Partial<GameSceneOpt>) {
 
    // Controls
    onKeyPress(player.controls.keyboard.action, ()=>player.action());
-   onUpdate('player', p=>{
+   onUpdate(CURRENT_PLAYER_TAG, p=>{
       if (p.isFrozen || !p.isAlive) return;
       const { up, down, left, right } = p.controls.keyboard;
       let dir = vec2(0);
