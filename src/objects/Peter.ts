@@ -12,10 +12,11 @@ import {
    ZComp,
 } from 'kaboom';
 import { AliveComp, canAlive, ON_DIE } from '../abilities/Alive';
+import { DetectComp, DetectableObj, canDetect } from '../abilities/Detect';
 import { FreezeComp, canFreeze } from '../abilities/Freeze';
 import { SaltComp, canSalt } from '../abilities/Salt';
 import { ScoreComp, canScore } from '../abilities/Score';
-import { ON_DIR_CHANGE, WalkComp, WalkableObj, canWalk } from '../abilities/Walk';
+import { ON_DIR_CHANGE, WalkComp, canWalk } from '../abilities/Walk';
 
 const {
    add,
@@ -66,9 +67,9 @@ export interface PeterComp extends Comp {
 export interface PeterCompOpt {
    pos: Vec2;
    walkableObjects: {
-      floors: WalkableObj[];
-      stairs: WalkableObj[];
-      stairtops: WalkableObj[];
+      floors: DetectableObj[];
+      stairs: DetectableObj[];
+      stairtops: DetectableObj[];
    },
 };
 
@@ -81,7 +82,7 @@ const PeterCompOptDefaults: PeterCompOpt = {
    },
 };
 
-export type PeterObj = GameObj<SpriteComp & AnchorComp & AreaComp & PosComp & ZComp & PeterComp & AliveComp & FreezeComp & SaltComp & ScoreComp & WalkComp>;
+export type PeterObj = GameObj<SpriteComp & AnchorComp & AreaComp & PosComp & ZComp & PeterComp & AliveComp & DetectComp & FreezeComp & SaltComp & ScoreComp & WalkComp>;
 
 export function addPeter(options: Partial<PeterCompOpt> = {}): PeterObj {
    const opt = Object.assign({}, PeterCompOptDefaults, options);
@@ -93,6 +94,7 @@ export function addPeter(options: Partial<PeterCompOpt> = {}): PeterObj {
       stay(['game', 'gameover']),
       peter(opt),
       canAlive(),
+      canDetect(),
       canFreeze(),
       canSalt(),
       canScore(),
@@ -108,7 +110,7 @@ export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
    let levelTime: number = 0;
    return {
       id: "peter",
-      require: ["area", "sprite", "can-alive", "can-freeze", "can-salt", "can-walk"],
+      require: ["area", "sprite", "can-alive", "can-detect", "can-freeze", "can-salt", "can-walk"],
       controls: {
          keyboard: {
             action: "space",

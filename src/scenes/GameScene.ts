@@ -6,7 +6,7 @@ import { addEnemy } from '../objects/Enemy';
 import { ON_WIN, PeterObj } from '../objects/Peter';
 import { addSlice } from '../objects/Slice';
 import { ON_DIE, ON_LIVES_CHANGE } from '../abilities/Alive';
-import { WalkableObj } from '../abilities/Walk';
+import { DetectableObj } from '../abilities/Detect';
 import { ON_SALT_CHANGE } from '../abilities/Salt';
 import { ON_SCORE_CHANGE } from '../abilities/Score';
 
@@ -149,12 +149,12 @@ export default function(options: Partial<GameSceneOpt>) {
    const levelDef = levels[levelNumber];
    const level = addLevel(levelDef.map, levelConf);
    const slices = levelDef.slices.map(opt=>addSlice(opt));
-   const stairs = level.get('stair') as WalkableObj[];
-   const floors = level.get('floor') as WalkableObj[];
+   const stairs = level.get('stair') as DetectableObj[];
+   const floors = level.get('floor') as DetectableObj[];
 
    // Calculate where it is flat floor at top of stairs, which is needed to know
    // when characters can climb down from a flat floor.
-   const stairtops = (level.get('flatfloor') as WalkableObj[]).filter(obj=>{
+   const stairtops = (level.get('flatfloor') as DetectableObj[]).filter(obj=>{
       // See if the tile below this one is a stair. If so, this is a stairtop!
       const stair = stairs.find(stair=>stair.tilePos.eq(obj.tilePos.add(0, 1)));
       if (stair) {

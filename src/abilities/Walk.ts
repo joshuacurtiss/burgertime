@@ -1,102 +1,31 @@
 import { k } from '../kaboom';
-import {
-   AnchorComp,
-   Comp,
-   GameObj,
-   PosComp,
-   SpriteComp,
-   TileComp,
-   Vec2,
-} from 'kaboom';
+import { Comp, Vec2 } from 'kaboom';
 
-const {
-   vec2,
-} = k;
+const { vec2 } = k;
 
 export const ON_DIR_CHANGE = 'dirChange';
-export type WalkableObj = GameObj<PosComp & TileComp & SpriteComp & AnchorComp>;
-
-interface WalkableStatus {
-   floor: boolean;
-   stair: boolean;
-   stairtop: boolean
-}
 
 export interface WalkComp extends Comp {
    dir: Vec2;
    speed: number;
    stairSpeedMultiplier: number;
-   calcIntents: (dir: Vec2) => WalkableStatus;
-   calcWalkableStatus: () => WalkableStatus;
    restrictDir: (dir: Vec2) => Vec2;
    setDir: (dir: Vec2) => void;
    setIntendedDir: (dir: Vec2) => void;
-   setObjects: (obj: { floors: WalkableObj[], stairs: WalkableObj[], stairtops: WalkableObj[] }) => void;
    snap: (orientation: 'horiz' | 'vert') => void;
 }
 
 export function canWalk(): WalkComp {
-   let floors: WalkableObj[] = [];
-   let stairs: WalkableObj[] = [];
-   let stairtops: WalkableObj[] = [];
-
-   function withinFloor(obj: WalkableObj, pos: Vec2) {
-      if (Math.abs(pos.y-obj.pos.y)>1.75) return false;
-      return pos.x>=obj.pos.x && pos.x<=obj.pos.x+obj.width;
-   }
-
-   function withinStairs(obj: WalkableObj, pos: Vec2) {
-      if (obj.is('stairleft')) {
-         if (pos.x<obj.pos.x+5 || pos.x>obj.pos.x+obj.width) return false;
-      } else {
-         if (pos.x<obj.pos.x || pos.x>obj.pos.x+obj.width-5) return false;
-      }
-      return pos.y>=obj.pos.y && pos.y<=obj.pos.y+obj.height;
-   }
-
-   function withinStairtops(obj: WalkableObj, pos: Vec2) {
-      if (obj.is('stairleft')) {
-         if (pos.x<obj.pos.x+5 || pos.x>obj.pos.x+obj.width) return false;
-      } else {
-         if (pos.x<obj.pos.x || pos.x>obj.pos.x+obj.width-5) return false;
-      }
-      return pos.y>=obj.pos.y+obj.height/2 && pos.y<=obj.pos.y+obj.height;
-   }
-
-   function within(objs: WalkableObj[], pos: Vec2, method: (obj: WalkableObj, pos: Vec2)=>boolean) {
-      return objs.some(obj=>method(obj, pos));
-   }
-
    return {
       id: 'can-walk',
-      require: ["sprite", "can-alive", "can-freeze"],
+      require: ["sprite", "can-alive", "can-detect", "can-freeze"],
       dir: vec2(0),
       speed: 55,
       stairSpeedMultiplier: 0.7,
-      setObjects(obj) {
-         floors = obj.floors;
-         stairs = obj.stairs;
-         stairtops = obj.stairtops;
-      },
-      calcWalkableStatus() {
-         return {
-            floor: within(floors, this.pos.add(0, 3), withinFloor),
-            stair: within(stairs, this.pos.add(0, 8), withinStairs),
-            stairtop: within(stairtops, this.pos.add(0, 8), withinStairtops),
-         };
-      },
-      calcIntents(dir) {
-         const intendedLoc = this.pos.add(0, this.height/2.1).add(dir.x * this.width/2, dir.y<=0 ? dir.y : 3.75);
-         return {
-            floor: !!dir.x && within(floors, intendedLoc.add(0, -4.5), withinFloor),
-            stair: !!dir.y && within(stairs, intendedLoc, withinStairs),
-            stairtop: !!dir.y && within(stairtops, intendedLoc, withinStairtops),
-         };
-      },
       restrictDir(dir) {
          let newdir = dir.clone();
          let intents = this.calcIntents(newdir);
-         let status = this.calcWalkableStatus();
+         let status = this.calcDetectableStatus();
          if (newdir.x) {
             if (!status.floor || !intents.floor ) {
                newdir = vec2(0, newdir.y);
@@ -128,7 +57,7 @@ export function canWalk(): WalkComp {
          this.setDir(this.restrictDir(dir));
       },
       snap(orientation) {
-         const status = this.calcWalkableStatus();
+         const status = this.calcDetectableStatus();
          if (orientation==='vert' && status.floor) {
             let y: number = this.pos.y;
             const mod = -(y % 8 - 5);

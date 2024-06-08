@@ -4,7 +4,6 @@ import { Comp, GameObj, PosComp } from 'kaboom';
 const {
    dt,
    rand,
-   time,
    vec2,
 } = k;
 
@@ -20,7 +19,7 @@ export function canChase(): ChaseComp {
    let stuckTime = 0;
    return {
       id: "can-chase",
-      require: ["can-alive", "can-freeze", "can-walk"],
+      require: ["can-alive", "can-detect", "can-freeze", "can-walk"],
       get target() {
          return target;
       },
@@ -33,7 +32,7 @@ export function canChase(): ChaseComp {
          stuckTime = lastPos.eq(this.pos) ? stuckTime+dt() : 0;
          lastPos = this.pos;
          if (lastThinkPos.dist(this.pos)<10 && stuckTime<0.5) return;
-         const { floor, stair, stairtop } = this.calcWalkableStatus();
+         const { floor, stair, stairtop } = this.calcDetectableStatus();
          if (stuckTime || (floor && (stair || stairtop))) {
             lastThinkPos = this.pos;
             let newdir = vec2(0);

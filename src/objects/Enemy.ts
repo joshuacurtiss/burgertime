@@ -11,6 +11,7 @@ import {
 } from 'kaboom';
 import { canAlive, AliveComp } from '../abilities/Alive';
 import { canChase, ChaseComp } from '../abilities/Chase';
+import { DetectComp, canDetect } from '../abilities/Detect';
 import { canFreeze, FreezeComp } from '../abilities/Freeze';
 import { canWalk, ON_DIR_CHANGE, WalkComp } from '../abilities/Walk';
 
@@ -46,7 +47,7 @@ const EnemyCompOptDefaults: EnemyCompOpt = {
    type: 'hotdog',
 };
 
-export function addEnemy(options: Partial<EnemyCompOpt> = {}): GameObj<SpriteComp & AnchorComp & AreaComp & PosComp & ZComp & EnemyComp & AliveComp & ChaseComp & FreezeComp & WalkComp> {
+export function addEnemy(options: Partial<EnemyCompOpt> = {}): GameObj<SpriteComp & AnchorComp & AreaComp & PosComp & ZComp & EnemyComp & AliveComp & ChaseComp & DetectComp & FreezeComp & WalkComp> {
    const opt = Object.assign({}, EnemyCompOptDefaults, options);
    return add([
       sprite('enemies', { anim: `${opt.type}-walk` }),
@@ -57,6 +58,7 @@ export function addEnemy(options: Partial<EnemyCompOpt> = {}): GameObj<SpriteCom
       opt.type,
       canAlive(),
       canChase(),
+      canDetect({ stairPrecision: 1 }),
       canFreeze(),
       canWalk(),
       enemy(opt),
