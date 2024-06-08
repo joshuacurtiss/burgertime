@@ -1,13 +1,14 @@
 import { LevelOpt, TimerController } from 'kaboom';
 import { k, BURGERTIME_BLUE } from '../kaboom';
+import { levels } from '../objects/Level';
 import { waitSpawnPowerup } from '../objects/Powerup';
 import { addEnemy } from '../objects/Enemy';
 import { ON_WIN, PeterObj } from '../objects/Peter';
+import { addSlice } from '../objects/Slice';
 import { ON_DIE, ON_LIVES_CHANGE } from '../abilities/Alive';
 import { WalkableObj } from '../abilities/Walk';
 import { ON_SALT_CHANGE } from '../abilities/Salt';
 import { ON_SCORE_CHANGE } from '../abilities/Score';
-import LEVELS from '../levels.json';
 
 const {
    add,
@@ -144,8 +145,10 @@ export default function(options: Partial<GameSceneOpt>) {
    });
 
    // Level setup
-   const levelNumber = player.level<LEVELS.length ? player.level : 0;
-   const level = addLevel(LEVELS[levelNumber], levelConf);
+   const levelNumber = player.level<levels.length ? player.level : 0;
+   const levelDef = levels[levelNumber];
+   const level = addLevel(levelDef.map, levelConf);
+   const slices = levelDef.slices.map(opt=>addSlice(opt));
    const stairs = level.get('stair') as WalkableObj[];
    const floors = level.get('floor') as WalkableObj[];
 
@@ -174,22 +177,15 @@ export default function(options: Partial<GameSceneOpt>) {
    });
 
    // Powerups
-   waitSpawnPowerup();
+   waitSpawnPowerup(levelDef.powerup);
 
    // Enemy Setup
-   const enemies = [
-      addEnemy({ type: 'hotdog', pos: vec2(224, 165) }),
-      addEnemy({ type: 'egg', pos: vec2(32, 165) }),
-      addEnemy({ type: 'hotdog', pos: vec2(32, 21) }),
-      addEnemy({ type: 'hotdog', pos: vec2(224, 21) }),
-      addEnemy({ type: 'hotdog', pos: vec2(64, 21) }),
-   ];
+   const enemies = levelDef.enemies.map(opt=>addEnemy(opt));
    enemies.forEach(enemy=>{
       enemy.freeze();
       enemy.setObjects({ floors, stairs, stairtops });
       enemy.target = player;
    });
-   wait(8, ()=>enemies.forEach(enemy=>enemy.unfreeze()));
    const ENEMY_SPEED_CHECK_FREQUENCY = 30;
    const ENEMY_SPEED_INC = 3;
    const enemyInitialSpeed = enemies[0].speed;
@@ -227,7 +223,7 @@ export default function(options: Partial<GameSceneOpt>) {
    });
    player.use(CURRENT_PLAYER_TAG);
    player.level = levelNumber;
-   player.pos = vec2(128, 165);
+   if (levelDef.player.pos) player.pos = levelDef.player.pos.clone();
    player.setObjects({ floors, stairs, stairtops });
    player.setAnim(vec2(0));
    player.isAlive = true;
@@ -301,6 +297,7 @@ export default function(options: Partial<GameSceneOpt>) {
    });
 
    // "Player Ready" message and music pause
+   const dlgTimer = wait(5, ()=>dlg?.destroy());
    const dlg = add([
       rect(k.width(), k.height()),
       pos(k.width()/2, k.height()/2),
@@ -314,16 +311,20 @@ export default function(options: Partial<GameSceneOpt>) {
       color(BURGERTIME_BLUE),
       anchor('center'),
    ]);
-   wait(5, ()=>{
+   dlg.onKeyPress(()=>{
+      dlgTimer?.cancel();
       dlg.destroy();
+   });
+   dlg.onDestroy(()=>{
       wait(player.isInitialized ? 0.25 : 3, ()=>{
          player.isFrozen = false;
+         enemies.forEach(enemy=>enemy.unfreeze());
          music.play();
       });
       if (!player.isInitialized) {
          play('start');
          player.isInitialized = true;
       }
-   })
+   });
 
 }

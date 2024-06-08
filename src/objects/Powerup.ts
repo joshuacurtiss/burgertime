@@ -92,8 +92,10 @@ export function powerup(options: Partial<PowerupCompOpt> = {}): PowerupComp {
    };
 }
 
-export function waitSpawnPowerup() {
+export function waitSpawnPowerup(options: Partial<PowerupCompOpt> = {}) {
    wait(randi(20, 60), ()=>{
-      addPowerup({ type: randi(0, 2) as PowerupType }).onDestroy(waitSpawnPowerup);
+      addPowerup({ ...options, type: randi(0, 2) as PowerupType }).onDestroy(()=>{
+         waitSpawnPowerup(options);
+      });
    });
 }
