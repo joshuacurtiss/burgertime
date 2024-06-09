@@ -4,7 +4,7 @@ import { levels } from '../objects/Level';
 import { waitSpawnPowerup } from '../objects/Powerup';
 import { addEnemy } from '../objects/Enemy';
 import { ON_WIN, PeterObj } from '../objects/Peter';
-import { addSlice } from '../objects/Slice';
+import { addSlice, ON_SLICE_FALL, ON_SLICE_PLATE } from '../objects/Slice';
 import { ON_DIE, ON_LIVES_CHANGE } from '../abilities/Alive';
 import { DetectableObj } from '../abilities/Detect';
 import { ON_SALT_CHANGE } from '../abilities/Salt';
@@ -25,8 +25,10 @@ const {
    play,
    pos,
    randi,
+   Rect,
    rect,
    sprite,
+   testRectRect,
    text,
    onUpdate,
    vec2,
@@ -70,11 +72,9 @@ const levelConf: LevelOpt = {
       ],
       "(": () => [
          sprite('plate', { frame: 0 }),
-         "plate",
       ],
       ")": () => [
          sprite('plate', { frame: 0, flipX: true }),
-         "plate",
       ],
       "⎽": () => [
          sprite('plate', { frame: 1 }),
@@ -148,9 +148,9 @@ export default function(options: Partial<GameSceneOpt>) {
    const levelNumber = player.level<levels.length ? player.level : 0;
    const levelDef = levels[levelNumber];
    const level = addLevel(levelDef.map, levelConf);
-   const slices = levelDef.slices.map(opt=>addSlice(opt));
    const stairs = level.get('stair') as DetectableObj[];
    const floors = level.get('floor') as DetectableObj[];
+   const plates = level.get('plate') as DetectableObj[];
 
    // Calculate where it is flat floor at top of stairs, which is needed to know
    // when characters can climb down from a flat floor.
@@ -237,6 +237,23 @@ export default function(options: Partial<GameSceneOpt>) {
       music.stop();
       enemies.forEach(enemy=>enemy.freeze());
       wait(5, ()=>goNextScene('win'));
+   });
+
+   // Slices
+   const slices = levelDef.slices.map(opt=>addSlice(opt));
+   slices.forEach(slice=>{
+      slice.setObjects({ floors, plates });
+   });
+   on(ON_SLICE_PLATE, 'slice', ()=>{
+      if (slices.every(slice=>slice.isOnPlate)) player.win();
+   })
+   on(ON_SLICE_FALL, 'slice', slice=>{
+      slice.enemies = enemies.filter(enemy=>{
+         return testRectRect(
+            new Rect(slice.pos, slice.getWidth(), slice.getHeight()),
+            new Rect(enemy.pos, enemy.width, enemy.height)
+         );
+      });
    });
 
    // Controls
