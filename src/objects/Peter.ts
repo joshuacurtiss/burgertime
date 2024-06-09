@@ -176,6 +176,7 @@ export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
          this.flipX = flipX;
       },
       async win() {
+         if (this.isFrozen || !this.isAlive) return;
          this.freeze();
          this.stop();
          this.level+=1;
