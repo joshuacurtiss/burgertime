@@ -19,7 +19,9 @@ const {
    add,
    anchor,
    area,
+   play,
    pos,
+   randi,
    Rect,
    sprite,
    vec2,
@@ -27,12 +29,14 @@ const {
    z,
 } = k;
 
-type EnemyType = 'hotdog' | 'pickle' | 'egg';
+export type Enemy = GameObj<SpriteComp & AnchorComp & AreaComp & PosComp & ZComp & EnemyComp & AliveComp & ChaseComp & DetectComp & FreezeComp & WalkComp>;
+export type EnemyType = 'hotdog' | 'pickle' | 'egg';
 
 export interface EnemyComp extends Comp {
    type: EnemyType;
    stunDelay: number;
    get isStunned(): boolean;
+   squash: ()=>void;
    stun: ()=>void;
    setAnim: (dir: Vec2) => void;
 }
@@ -47,7 +51,7 @@ const EnemyCompOptDefaults: EnemyCompOpt = {
    type: 'hotdog',
 };
 
-export function addEnemy(options: Partial<EnemyCompOpt> = {}): GameObj<SpriteComp & AnchorComp & AreaComp & PosComp & ZComp & EnemyComp & AliveComp & ChaseComp & DetectComp & FreezeComp & WalkComp> {
+export function addEnemy(options: Partial<EnemyCompOpt> = {}): Enemy {
    const opt = Object.assign({}, EnemyCompOptDefaults, options);
    return add([
       sprite('enemies', { anim: `${opt.type}-walk` }),
@@ -76,6 +80,18 @@ export function enemy(options: Partial<EnemyCompOpt> = {}): EnemyComp {
       get isStunned() {
          return stunned;
       },
+      squash() {
+         if (this.isFrozen) return;
+         this.freeze();
+         this.play(`${this.type}-squash`);
+         play('enemy_squash');
+         wait(0.5, ()=>this.pos = vec2(-20));
+         wait(randi(8, 20), ()=>{
+            this.setAnim(vec2(0));
+            this.pos = opt.pos.clone();
+            this.unfreeze();
+         });
+   },
       stun() {
          stunTimer?.cancel();
          stunned = true;
