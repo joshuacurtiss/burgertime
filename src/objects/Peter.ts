@@ -17,6 +17,7 @@ import { FreezeComp, canFreeze } from '../abilities/Freeze';
 import { SaltComp, canSalt } from '../abilities/Salt';
 import { ScoreComp, canScore } from '../abilities/Score';
 import { ON_DIR_CHANGE, WalkComp, canWalk } from '../abilities/Walk';
+import { Slice } from './Slice';
 
 const {
    add,
@@ -55,6 +56,7 @@ export interface PeterControls {
 export interface PeterComp extends Comp {
    controls: PeterControls;
    isInitialized: boolean;
+   slices: Slice[];
    action: Function;
    win: Function;
    get level(): number;
@@ -128,6 +130,7 @@ export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
          },
       },
       isInitialized: false,
+      slices: [],
       add() {
          this.onCollide("enemy", enemy=>{
             if (enemy.isStunned) return;
@@ -180,6 +183,7 @@ export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
          this.freeze();
          this.stop();
          this.level+=1;
+         this.slices = [];
          this.trigger(ON_WIN, this);
          play('win');
          for (let i=0 ; i<8 ; i+=1) {
