@@ -241,9 +241,11 @@ export default function(options: Partial<GameSceneOpt>) {
 
    // Slices
    const slices = levelDef.slices.map(opt=>addSlice(opt));
-   slices.forEach(slice=>{
+   slices.forEach((slice, i)=>{
+      if (player.slices.length>i) slice.mimic(player.slices[i]);
       slice.setObjects({ floors, plates });
    });
+   player.slices = slices;
    on(ON_SLICE_PLATE, 'slice', ()=>{
       if (slices.every(slice=>slice.isOnPlate)) player.win();
    })
