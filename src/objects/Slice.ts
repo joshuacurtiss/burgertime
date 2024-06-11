@@ -44,6 +44,8 @@ export interface SliceComp extends Comp {
    get isFalling(): boolean;
    set isFalling(bool: boolean);
    get isOnPlate(): boolean;
+   set isOnPlate(bool: boolean);
+   mimic: (otherSlice: Slice) => void;
    fall: Function;
    land: Function;
 }
@@ -100,6 +102,13 @@ export function slice(options: Partial<SliceCompOpt> = {}): SliceComp {
          const changed = onPlate===bool;
          onPlate = bool;
          if (bool && changed) this.trigger(ON_SLICE_PLATE, this);
+      },
+      mimic(otherSlice: Slice) {
+         this.pos = otherSlice.pos.clone();
+         onPlate = otherSlice.isOnPlate;
+         this.children.forEach((bit, i)=>{
+            bit.pos = otherSlice.children[i].pos.clone();
+         });
       },
       fall() {
          if (this.isFalling || this.isOnPlate) return;
