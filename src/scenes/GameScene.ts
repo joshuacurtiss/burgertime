@@ -1,5 +1,5 @@
 import { LevelOpt, TimerController } from 'kaboom';
-import { k, BURGERTIME_BLUE } from '../kaboom';
+import { k, urlParams, BURGERTIME_BLUE } from '../kaboom';
 import { levels } from '../objects/Level';
 import { waitSpawnPowerup } from '../objects/Powerup';
 import { addEnemy } from '../objects/Enemy';
@@ -96,6 +96,14 @@ const GameSceneOptDefaults: GameSceneOpt = {
 export default function(options: Partial<GameSceneOpt>) {
    const opt = Object.assign({}, GameSceneOptDefaults, options);
    const player = opt.players[opt.currentPlayer];
+
+   // Check for level edit mode
+   const levelEditMode = urlParams.has('lev');
+   if (levelEditMode) {
+      player.level = parseInt(urlParams.get('lev') ?? '0');
+      player.isInitialized = true;
+      player.isInvulnerable = true;
+   }
 
    // Music Setup
    const music = play('music', { paused: true, loop: true, volume: 0.6 });
@@ -316,7 +324,7 @@ export default function(options: Partial<GameSceneOpt>) {
    });
 
    // "Player Ready" message and music pause
-   const dlgTimer = wait(5, ()=>dlg?.destroy());
+   const dlgTimer = wait(levelEditMode ? 0 : 5, ()=>dlg?.destroy());
    const dlg = add([
       rect(k.width(), k.height()),
       pos(k.width()/2, k.height()/2),
