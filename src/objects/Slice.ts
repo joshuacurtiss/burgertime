@@ -137,7 +137,7 @@ export function slice(options: Partial<SliceCompOpt> = {}): SliceComp {
             if (isSliceBitType(bit)) this.add([
                sprite('burger', { frame: opt.type*4 + bit }),
                pos(vec2(bit*8, Y_NORMAL)),
-               area({ shape: new Rect(vec2(0, 4), 8, 2) }),
+               area({ shape: new Rect(vec2(bit<2 ? 1 : 3, 4), 4, 2) }),
                z(7),
                "slice-bit"
             ]);
