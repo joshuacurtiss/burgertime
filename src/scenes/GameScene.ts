@@ -259,10 +259,9 @@ export default function(options: Partial<GameSceneOpt>) {
    })
    on(ON_SLICE_FALL, 'slice', slice=>{
       slice.enemies = enemies.filter(enemy=>{
-         return testRectRect(
-            new Rect(slice.pos, slice.getWidth(), slice.getHeight()),
-            new Rect(enemy.pos, enemy.width, enemy.height)
-         );
+         const sliceRect = new Rect(slice.pos.add(1, -1), slice.getWidth()-2, slice.getHeight()-2),
+               enemyRect = new Rect(enemy.pos.sub(enemy.width/2, 0), enemy.width, enemy.height/2);
+         return testRectRect(sliceRect, enemyRect);
       });
    });
 
