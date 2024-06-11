@@ -20,7 +20,7 @@ k.setFullscreen(true);
 export const BURGERTIME_BLUE = k.rgb(0, 149, 255);
 
 // Debugging
-const params = new URLSearchParams(location.search)
-const debugMode = params.has('debug')
+export const urlParams = new URLSearchParams(location.search)
+const debugMode = urlParams.has('debug')
 k.debug.inspect = debugMode;
 k.debug.showLog = debugMode;
