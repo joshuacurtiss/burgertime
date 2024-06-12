@@ -2,7 +2,7 @@ import { LevelOpt, TimerController } from 'kaboom';
 import { k, urlParams, BURGERTIME_BLUE } from '../kaboom';
 import { levels } from '../objects/Level';
 import { waitSpawnPowerup } from '../objects/Powerup';
-import { addEnemy } from '../objects/Enemy';
+import { Enemy, addEnemy } from '../objects/Enemy';
 import { ON_WIN, PeterObj } from '../objects/Peter';
 import { addSlice, ON_SLICE_FALL, ON_SLICE_PLATE } from '../objects/Slice';
 import { ON_DIE, ON_LIVES_CHANGE } from '../abilities/Alive';
@@ -258,9 +258,17 @@ export default function(options: Partial<GameSceneOpt>) {
       if (slices.every(slice=>slice.isOnPlate)) player.win();
    })
    on(ON_SLICE_FALL, 'slice', slice=>{
+      const alreadyFalling = new Set<Enemy>();
+      slices.forEach(slice=>{
+         slice.enemies.forEach(e=>{
+            if (!alreadyFalling.has(e)) alreadyFalling.add(e);
+         });
+      });
       slice.enemies = enemies.filter(enemy=>{
-         const sliceRect = new Rect(slice.pos.add(1, -1), slice.getWidth()-2, slice.getHeight()-2),
-               enemyRect = new Rect(enemy.pos.sub(enemy.width/2, 0), enemy.width, enemy.height/2);
+         // If its already falling, don't change anything
+         if (alreadyFalling.has(enemy)) return false;
+         const sliceRect = new Rect(slice.pos.add(1, 2), slice.getWidth()-2, 2),
+               enemyRect = new Rect(enemy.pos.add(-enemy.width/2, enemy.height/4), enemy.width, enemy.height/4);
          return testRectRect(sliceRect, enemyRect);
       });
    });
