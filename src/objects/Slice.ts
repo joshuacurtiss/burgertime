@@ -121,6 +121,7 @@ export function slice(options: Partial<SliceCompOpt> = {}): SliceComp {
          dir.y = 0;
          this.children.forEach(child=>child.pos.y = Y_NORMAL);
          enemies.forEach(enemy=>{
+            enemy.pos.y = this.pos.y-3;
             if (this.isOnPlate) {
                enemy.unfreeze();
                enemy.squash();
