@@ -36,6 +36,7 @@ export interface EnemyComp extends Comp {
    type: EnemyType;
    stunDelay: number;
    get isStunned(): boolean;
+   get isSquashed(): boolean;
    squash: ()=>void;
    stun: ()=>void;
    setAnim: (dir: Vec2) => void;
@@ -80,6 +81,9 @@ export function enemy(options: Partial<EnemyCompOpt> = {}): EnemyComp {
       get isStunned() {
          return stunned;
       },
+      get isSquashed() {
+         return this.curAnim() === `${this.type}-squash`;
+      },
       squash() {
          if (this.isFrozen) return;
          this.freeze();
@@ -91,7 +95,7 @@ export function enemy(options: Partial<EnemyCompOpt> = {}): EnemyComp {
             this.pos = opt.pos.clone();
             this.unfreeze();
          });
-   },
+      },
       stun() {
          stunTimer?.cancel();
          stunned = true;
