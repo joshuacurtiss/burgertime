@@ -89,7 +89,7 @@ export function enemy(options: Partial<EnemyCompOpt> = {}): EnemyComp {
          this.freeze();
          this.play(`${this.type}-squash`);
          play('enemy_squash');
-         wait(0.5, ()=>this.pos = vec2(-20));
+         wait(0.5, ()=>this.pos = vec2(-50));
          wait(randi(8, 20), ()=>{
             this.setAnim(vec2(0));
             this.pos = opt.pos.clone();
