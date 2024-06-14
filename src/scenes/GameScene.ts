@@ -267,6 +267,9 @@ export default function(options: Partial<GameSceneOpt>) {
       slice.enemies = enemies.filter(enemy=>{
          // If its already falling, don't change anything
          if (alreadyFalling.has(enemy)) return false;
+         // If its squashed, don't change anything
+         if (enemy.isSquashed) return false;
+         // Return whether slice and enemy intersect
          const sliceRect = new Rect(slice.pos.add(1, 2), slice.getWidth()-2, 2),
                enemyRect = new Rect(enemy.pos.add(-enemy.width/2, enemy.height/4), enemy.width, enemy.height/4);
          return testRectRect(sliceRect, enemyRect);
