@@ -2,9 +2,9 @@ import { LevelOpt, TimerController } from 'kaboom';
 import { k, urlParams, BURGERTIME_BLUE } from '../kaboom';
 import { levels } from '../objects/Level';
 import { waitSpawnPowerup } from '../objects/Powerup';
-import { Enemy, addEnemy } from '../objects/Enemy';
+import { Enemy, ON_SQUASH, addEnemy } from '../objects/Enemy';
 import { ON_WIN, PeterObj } from '../objects/Peter';
-import { addSlice, ON_SLICE_FALL, ON_SLICE_PLATE } from '../objects/Slice';
+import { addSlice, ON_SLICE_FALL, ON_SLICE_LAND, ON_SLICE_PLATE } from '../objects/Slice';
 import { ON_DIE, ON_LIVES_CHANGE } from '../abilities/Alive';
 import { DetectableObj } from '../abilities/Detect';
 import { ON_SALT_CHANGE } from '../abilities/Salt';
@@ -290,6 +290,15 @@ export default function(options: Partial<GameSceneOpt>) {
       else if (isKeyDown(up)) dir = vec2(0, -1);
       else if (isKeyDown(down)) dir = vec2(0, 1);
       p.setIntendedDir(dir);
+   });
+
+   // Scoring
+   on(ON_SQUASH, 'enemy', ()=>{
+      player.score += 100;
+   });
+   on(ON_SLICE_LAND, 'slice', slice=>{
+      player.score += 50;
+      player.score += slice.enemies.length * 100;
    });
 
    // Cheat Codes
