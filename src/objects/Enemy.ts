@@ -29,6 +29,8 @@ const {
    z,
 } = k;
 
+export const ON_SQUASH = 'enemySquash';
+
 export type Enemy = GameObj<SpriteComp & AnchorComp & AreaComp & PosComp & ZComp & EnemyComp & AliveComp & ChaseComp & DetectComp & FreezeComp & WalkComp>;
 export type EnemyType = 'hotdog' | 'pickle' | 'egg';
 
@@ -89,6 +91,7 @@ export function enemy(options: Partial<EnemyCompOpt> = {}): EnemyComp {
          this.freeze();
          this.play(`${this.type}-squash`);
          play('enemy_squash');
+         this.trigger(ON_SQUASH, this);
          wait(0.5, ()=>this.pos = vec2(-50));
          wait(randi(8, 20), ()=>{
             this.setAnim(vec2(0));
