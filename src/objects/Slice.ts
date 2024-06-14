@@ -26,6 +26,7 @@ type SliceBitType = 0 | 1 | 2 | 3;
 export type Slice = GameObj<PosComp & DetectComp & SliceComp>;
 
 export const ON_SLICE_FALL = 'sliceFall';
+export const ON_SLICE_LAND = 'sliceLand';
 export const ON_SLICE_PLATE = 'slicePlate';
 
 const Y_NORMAL = -2;
@@ -126,6 +127,7 @@ export function slice(options: Partial<SliceCompOpt> = {}): SliceComp {
          this.trigger(ON_SLICE_FALL, this);
       },
       land() {
+         if (dir.isZero()) return;
          dir.y = 0;
          this.children.forEach(child=>child.pos.y = Y_NORMAL);
          enemies.forEach(enemy=>{
@@ -139,6 +141,7 @@ export function slice(options: Partial<SliceCompOpt> = {}): SliceComp {
                enemy.setDir(vec2(0));
             });
          });
+         this.trigger(ON_SLICE_LAND, this);
          enemies = [];
       },
       add() {
