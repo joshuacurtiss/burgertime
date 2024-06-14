@@ -37,6 +37,7 @@ function isSliceBitType(num: number): num is SliceBitType {
 }
 
 export interface SliceComp extends Comp {
+   get fallCount(): number;
    get type(): SliceType;
    get enemies(): Enemy[];
    set enemies(arr: Enemy[]);
@@ -73,11 +74,16 @@ export function addSlice(options: Partial<SliceCompOpt> = {}): Slice {
 export function slice(options: Partial<SliceCompOpt> = {}): SliceComp {
    let enemies: Enemy[] = [];
    let onPlate = false;
+   let fallCount = 0;
+   let fallCountY = 0;
    const opt = Object.assign({}, SliceCompOptDefaults, options),
          dir = vec2(0),
          type = opt.type;
    return {
       id: "slice",
+      get fallCount() {
+         return fallCount;
+      },
       get type() {
          return type;
       },
@@ -95,6 +101,7 @@ export function slice(options: Partial<SliceCompOpt> = {}): SliceComp {
       },
       set enemies(arr: Enemy[]) {
          enemies = arr;
+         fallCount = enemies.length ? (enemies.length+2) : 0;
          enemies.forEach(enemy=>enemy.freeze());
          // if (enemies.length) play('enemy_fall');
       },
@@ -110,10 +117,11 @@ export function slice(options: Partial<SliceCompOpt> = {}): SliceComp {
             bit.pos = otherSlice.children[i].pos.clone();
          });
       },
-      fall() {
+      fall(newFallCount=0) {
          if (this.isFalling || this.isOnPlate) return;
          this.pos = this.pos.add(0, 1);
          dir.y = FALL_SPEED;
+         fallCount = newFallCount<0 ? 0 : newFallCount;
          play('burger_drop');
          this.trigger(ON_SLICE_FALL, this);
       },
@@ -166,17 +174,31 @@ export function slice(options: Partial<SliceCompOpt> = {}): SliceComp {
                   this.pos = this.pos.add(0, -1);
                   return;
                }
-               sliceBit.parent.fall();
+               sliceBit.parent.fall(fallCount);
+               this.pos.y-=1.5
             });
          });
       },
       update() {
          if (!this.isFalling || this.isOnPlate) return;
          const { floor, plate } = this.calcDetectableStatus() as DetectableStatus;
-         if (plate) this.isOnPlate = true;
-         if (floor || plate) {
+         if (plate) {
+            this.isOnPlate = true;
             this.land();
             return;
+         }
+         // If on floor and more than 6px from last floor check, then decrement
+         // the floor count and land if we've run out of fall count. We check
+         // this because we need to track how many levels we fall, so when we
+         // hit a floor and decrement the fall count, we need to make sure to
+         // not check until we've passed that floor.
+         if (floor && Math.abs(fallCountY-this.pos.y)>6) {
+            fallCount-=1;
+            fallCountY = this.pos.y;
+            if (fallCount<=0) {
+               this.land();
+               return;
+            }
          }
          this.move(dir);
          this.enemies.forEach(enemy=>enemy.move(dir));
