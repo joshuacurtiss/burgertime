@@ -199,6 +199,9 @@ export default function(options: Partial<GameSceneOpt>) {
    const enemyInitialSpeed = enemies[0].speed;
    let lastEnemySpeedCheck=0;
    onUpdate(CURRENT_PLAYER_TAG, p=>{
+      // If player has won, freeze enemies continuously in case they reappear
+      if (player.isFrozen) enemies.forEach(enemy=>enemy.freeze());
+      // Keep track of time on level, and increase enemy speed
       const levelTime = Math.floor(p.levelTime);
       if (levelTime-lastEnemySpeedCheck>=ENEMY_SPEED_CHECK_FREQUENCY) {
          lastEnemySpeedCheck = levelTime;
