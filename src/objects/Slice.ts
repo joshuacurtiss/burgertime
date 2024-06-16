@@ -104,7 +104,7 @@ export function slice(options: Partial<SliceCompOpt> = {}): SliceComp {
          enemies = arr;
          fallCount = enemies.length ? (enemies.length+2) : 0;
          enemies.forEach(enemy=>enemy.freeze());
-         // if (enemies.length) play('enemy_fall');
+         if (enemies.length) play('enemy_fall');
       },
       set isOnPlate(bool) {
          const changed = onPlate===bool;
@@ -130,6 +130,7 @@ export function slice(options: Partial<SliceCompOpt> = {}): SliceComp {
          if (dir.isZero()) return;
          dir.y = 0;
          this.children.forEach(child=>child.pos.y = Y_NORMAL);
+         play('burger_floor');
          enemies.forEach(enemy=>{
             enemy.pos.y = this.pos.y-3;
             if (this.isOnPlate) {
