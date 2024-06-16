@@ -180,6 +180,7 @@ export function slice(options: Partial<SliceCompOpt> = {}): SliceComp {
                }
                sliceBit.parent.fall(fallCount);
                this.pos.y-=1.5
+               enemies.forEach(enemy=>enemy.pos.y-=1.5);
             });
          });
       },
