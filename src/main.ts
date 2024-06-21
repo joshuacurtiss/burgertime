@@ -1,6 +1,8 @@
 import { k } from './kaboom';
 import GameOverScene from './scenes/GameOverScene';
 import GameScene from './scenes/GameScene';
+import SetControlsScene from './scenes/SetControlsScene';
+import SetVolumeScene from './scenes/SetVolumeScene';
 import StartScene from './scenes/StartScene';
 
 const {
@@ -81,4 +83,6 @@ loadSprite("stair-green", "stair-green.png", { sliceX: 2 });
 scene("start", StartScene);
 scene("game", GameScene);
 scene("gameover", GameOverScene);
+scene("setVolume", SetVolumeScene);
+scene("setControls", SetControlsScene);
 go("start");
