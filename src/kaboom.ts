@@ -3,6 +3,8 @@ import kaboom, { KaboomCtx } from 'kaboom';
 // Game Constants
 export const GAME_WIDTH = 256;
 export const GAME_HEIGHT = 224;
+export const DATA_MUSIC_VOL = 'bt_music_vol';
+export const DATA_SFX_VOL = 'bt_sfx_vol';
 
 // Kaboom Instance
 export const k: KaboomCtx = kaboom({
