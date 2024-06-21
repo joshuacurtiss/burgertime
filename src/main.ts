@@ -62,6 +62,10 @@ loadSprite("peter", "peter.png", {
       dead: { from: 17, to: 18, loop: true, speed: 8 }
    },
 });
+loadSprite("arrow-right", "arrow-right.png");
+loadSprite("arrow-up", "arrow-up.png");
+loadSprite("audio-speaker", "audio-speaker.png");
+loadSprite("music-note", "music-note.png");
 loadSprite("title", "title.png");
 loadSprite("floor", "floor.png", { sliceX: 2 });
 loadSprite("floor-stair-blue", "floor-stair-blue.png", { sliceX: 2 });
