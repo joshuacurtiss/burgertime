@@ -21,6 +21,12 @@ k.setFullscreen(true);
 
 // Game Constants (using Kaboom context)
 export const BURGERTIME_BLUE = k.rgb(0, 149, 255);
+export const DIR = {
+   'left': k.vec2(-1, 0),
+   'right': k.vec2(1, 0),
+   'up': k.vec2(0, -1),
+   'down': k.vec2(0, 1),
+}
 
 // Sound Handling
 export function getVol(which: string): number {
