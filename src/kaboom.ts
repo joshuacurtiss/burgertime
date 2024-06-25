@@ -1,11 +1,47 @@
 import kaboom, { GamepadButton, KaboomCtx, Key } from 'kaboom';
+import { PeterControls } from './objects/Peter';
 
 // Game Constants
 export const GAME_WIDTH = 256;
 export const GAME_HEIGHT = 224;
 export const DEFAULT_VOL = '50';
+export const DEFAULT_CONTROLS: PeterControls[] = [
+   {
+      action: 'space',
+      pause: 'escape',
+      left: 'left',
+      right: 'right',
+      up: 'up',
+      down: 'down',
+   },
+   {
+      action: 'meta',
+      pause: 'escape',
+      left: 'a',
+      right: 'd',
+      up: 'w',
+      down: 's',
+   },
+   {
+      action: 'shift',
+      pause: 'escape',
+      left: 'j',
+      right: 'l',
+      up: 'i',
+      down: 'k',
+   },
+   {
+      action: 'south',
+      pause: 'start',
+      left: 'dpad-left',
+      right: 'dpad-right',
+      up: 'dpad-up',
+      down: 'dpad-down',
+   },
+];
 export const DATA_MUSIC_VOL = 'bt_music_vol';
 export const DATA_SFX_VOL = 'bt_sfx_vol';
+export const DATA_CONTROLS = 'bt_controls';
 
 // Kaboom Instance
 export const k: KaboomCtx = kaboom({
@@ -18,6 +54,11 @@ export const k: KaboomCtx = kaboom({
    height: GAME_HEIGHT,
 });
 k.setFullscreen(true);
+
+// Game Defaults
+k.getData(DATA_MUSIC_VOL, DEFAULT_VOL);
+k.getData(DATA_SFX_VOL, DEFAULT_VOL);
+k.getData(DATA_CONTROLS, DEFAULT_CONTROLS);
 
 // Game Constants (using Kaboom context)
 export const BURGERTIME_BLUE = k.rgb(0, 149, 255);
