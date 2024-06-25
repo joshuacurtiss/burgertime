@@ -37,20 +37,21 @@ const {
 export const ON_WIN = 'win';
 
 export interface PeterControls {
-   keyboard: {
-      left: Key;
-      right: Key;
-      up: Key;
-      down: Key;
-      action: Key;
-   };
-   gamepad: {
-      left: GamepadButton;
-      right: GamepadButton;
-      up: GamepadButton;
-      down: GamepadButton;
-      action: GamepadButton;
-   }
+   left: Key | GamepadButton;
+   right: Key | GamepadButton;
+   up: Key | GamepadButton;
+   down: Key | GamepadButton;
+   action: Key | GamepadButton;
+   pause: Key | GamepadButton;
+};
+
+export const PeterControlsDefault: PeterControls = {
+   left: 'left',
+   right: 'right',
+   up: 'up',
+   down: 'down',
+   action: 'space',
+   pause: 'escape',
 };
 
 export interface PeterComp extends Comp {
@@ -86,6 +87,10 @@ const PeterCompOptDefaults: PeterCompOpt = {
 
 export type PeterObj = GameObj<SpriteComp & AnchorComp & AreaComp & PosComp & ZComp & PeterComp & AliveComp & DetectComp & FreezeComp & SaltComp & ScoreComp & WalkComp>;
 
+export function isPeter(obj: GameObj): obj is PeterObj {
+   return obj.is('peter') && obj.is('player');
+}
+
 export function addPeter(options: Partial<PeterCompOpt> = {}): PeterObj {
    const opt = Object.assign({}, PeterCompOptDefaults, options);
    return add([
@@ -113,22 +118,7 @@ export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
    return {
       id: "peter",
       require: ["area", "sprite", "can-alive", "can-detect", "can-freeze", "can-salt", "can-walk"],
-      controls: {
-         keyboard: {
-            action: "space",
-            left: "left",
-            right: "right",
-            up: "up",
-            down: "down",
-         },
-         gamepad: {
-            action: "south",
-            left: "dpad-left",
-            right: "dpad-right",
-            up: "dpad-up",
-            down: "dpad-down",
-         },
-      },
+      controls: { ...PeterControlsDefault },
       isInitialized: false,
       slices: [],
       add() {

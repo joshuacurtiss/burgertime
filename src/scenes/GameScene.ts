@@ -1,9 +1,9 @@
 import { LevelOpt, TimerController } from 'kaboom';
-import { k, urlParams, BURGERTIME_BLUE, getVol, DATA_MUSIC_VOL, DATA_SFX_VOL } from '../kaboom';
+import { k, urlParams, BURGERTIME_BLUE, getVol, isKey, isGamepadButton, DATA_MUSIC_VOL, DATA_SFX_VOL, DIR } from '../kaboom';
 import { levels } from '../objects/Level';
 import { waitSpawnPowerup } from '../objects/Powerup';
 import { Enemy, ON_SQUASH, addEnemy } from '../objects/Enemy';
-import { ON_WIN, PeterObj } from '../objects/Peter';
+import { ON_WIN, isPeter, PeterObj } from '../objects/Peter';
 import { addSlice, ON_SLICE_FALL, ON_SLICE_LAND, ON_SLICE_PLATE } from '../objects/Slice';
 import { ON_DIE, ON_LIVES_CHANGE } from '../abilities/Alive';
 import { DetectableObj } from '../abilities/Detect';
@@ -21,6 +21,8 @@ const {
    go,
    isKeyDown,
    onKeyPress,
+   isGamepadButtonDown,
+   onGamepadButtonPress,
    on,
    play,
    pos,
@@ -279,16 +281,20 @@ export default function(options: Partial<GameSceneOpt>) {
       });
    });
 
+
    // Controls
-   onKeyPress(player.controls.keyboard.action, ()=>player.action());
+   if (isGamepadButton(player.controls.action)) onGamepadButtonPress(player.controls.action, ()=>player.action());
+   else if (isKey(player.controls.action)) onKeyPress(player.controls.action, ()=>player.action());
+   const dirPriority = ['left', 'right', 'up', 'down'];
    onUpdate(CURRENT_PLAYER_TAG, p=>{
       if (p.isFrozen || !p.isAlive) return;
-      const { up, down, left, right } = p.controls.keyboard;
+      if (!isPeter(p)) return;
       let dir = vec2(0);
-      if (isKeyDown(left)) dir = vec2(-1, 0);
-      else if (isKeyDown(right)) dir = vec2(1, 0);
-      else if (isKeyDown(up)) dir = vec2(0, -1);
-      else if (isKeyDown(down)) dir = vec2(0, 1);
+      dirPriority.some(d=>{
+         const k = p.controls[d];
+         if (isKey(k) && isKeyDown(k) || isGamepadButton(k) && isGamepadButtonDown(k)) dir = DIR[d];
+         return !dir.isZero();
+      });
       p.setIntendedDir(dir);
    });
 
