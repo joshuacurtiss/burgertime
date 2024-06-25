@@ -1,5 +1,5 @@
 import { LevelOpt, TimerController } from 'kaboom';
-import { k, urlParams, BURGERTIME_BLUE, getVol, isKey, isGamepadButton, DATA_MUSIC_VOL, DATA_SFX_VOL, DIR } from '../kaboom';
+import { k, urlParams, BURGERTIME_BLUE, getVol, isKey, isGamepadButton, DATA_CONTROLS, DATA_MUSIC_VOL, DATA_SFX_VOL, DEFAULT_CONTROLS, DIR } from '../kaboom';
 import { levels } from '../objects/Level';
 import { waitSpawnPowerup } from '../objects/Powerup';
 import { Enemy, ON_SQUASH, addEnemy } from '../objects/Enemy';
@@ -18,6 +18,7 @@ const {
    color,
    debug,
    fixed,
+   getData,
    go,
    isKeyDown,
    onKeyPress,
@@ -281,8 +282,9 @@ export default function(options: Partial<GameSceneOpt>) {
       });
    });
 
-
    // Controls
+   const controls = getData(DATA_CONTROLS, DEFAULT_CONTROLS);
+   player.controls = controls[opt.currentPlayer];
    if (isGamepadButton(player.controls.action)) onGamepadButtonPress(player.controls.action, ()=>player.action());
    else if (isKey(player.controls.action)) onKeyPress(player.controls.action, ()=>player.action());
    const dirPriority = ['left', 'right', 'up', 'down'];
