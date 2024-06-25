@@ -1,4 +1,4 @@
-import kaboom, { KaboomCtx } from 'kaboom';
+import kaboom, { GamepadButton, KaboomCtx, Key } from 'kaboom';
 
 // Game Constants
 export const GAME_WIDTH = 256;
@@ -25,6 +25,25 @@ export const BURGERTIME_BLUE = k.rgb(0, 149, 255);
 // Sound Handling
 export function getVol(which: string): number {
    return parseInt(k.getData(which, DEFAULT_VOL)) / 100
+}
+
+// Type Guards
+export function isGamepadButton(key: string): key is GamepadButton {
+   return [
+      "north", "east", "south", "west", "ltrigger", "rtrigger", "lshoulder", "rshoulder", "select",
+      "start", "lstick", "rstick", "dpad-up", "dpad-right", "dpad-down", "dpad-left", "home", "capture",
+   ].includes(key);
+}
+export function isKey(key: string): key is Key {
+   return [
+      "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "f10", "f11", "f12",
+      "`", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=",
+      "q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "[", "]", "\\",
+      "a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "'",
+      "z", "x", "c", "v", "b", "n", "m", ",", ".", "/",
+      "escape", "backspace", "enter", "tab", "control", "alt", "meta", "space", " ",
+      "left", "right", "up", "down", "shift",
+   ].includes(key);
 }
 
 // Debugging
