@@ -4,7 +4,7 @@ import { PeterControls } from './objects/Peter';
 // Game Constants
 export const GAME_WIDTH = 256;
 export const GAME_HEIGHT = 224;
-export const DEFAULT_VOL = '50';
+export const DEFAULT_VOL: number = 50;
 export const DEFAULT_CONTROLS: PeterControls[] = [
    {
       action: 'space',
@@ -71,7 +71,7 @@ export const DIR = {
 
 // Sound Handling
 export function getVol(which: string): number {
-   return parseInt(k.getData(which, DEFAULT_VOL)) / 100
+   return k.getData(which, DEFAULT_VOL) / 100;
 }
 
 // Type Guards
