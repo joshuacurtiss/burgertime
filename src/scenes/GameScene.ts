@@ -1,5 +1,5 @@
 import { LevelOpt, TimerController } from 'kaboom';
-import { k, urlParams, BURGERTIME_BLUE } from '../kaboom';
+import { k, urlParams, BURGERTIME_BLUE, getVol, DATA_MUSIC_VOL, DATA_SFX_VOL } from '../kaboom';
 import { levels } from '../objects/Level';
 import { waitSpawnPowerup } from '../objects/Powerup';
 import { Enemy, ON_SQUASH, addEnemy } from '../objects/Enemy';
@@ -106,7 +106,7 @@ export default function(options: Partial<GameSceneOpt>) {
    }
 
    // Music Setup
-   const music = play('music', { paused: true, loop: true, volume: 0.6 });
+   const music = play('music', { paused: true, loop: true, volume: getVol(DATA_MUSIC_VOL) });
 
    // UI Setup
    const UI_FONT_SIZE = 10;
@@ -371,7 +371,7 @@ export default function(options: Partial<GameSceneOpt>) {
          music.play();
       });
       if (!player.isInitialized) {
-         play('start');
+         play('start', { volume: getVol(DATA_SFX_VOL) });
          player.isInitialized = true;
       }
    });

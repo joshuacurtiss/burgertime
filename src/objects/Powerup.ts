@@ -1,4 +1,4 @@
-import { k } from '../kaboom';
+import { k, getVol, DATA_SFX_VOL } from '../kaboom';
 import {
    AnchorComp,
    AreaComp,
@@ -70,9 +70,9 @@ export function powerup(options: Partial<PowerupCompOpt> = {}): PowerupComp {
          return (this.type+1)*500 + pointsRandomness;
       },
       add() {
-         play('item');
+         play('item', { volume: getVol(DATA_SFX_VOL) });
          this.onCollide('player', player=>{
-            play('powerup');
+            play('powerup', { volume: getVol(DATA_SFX_VOL) });
             player.salt+=1;
             player.score+=this.points;
             const scoreIndicator = add([

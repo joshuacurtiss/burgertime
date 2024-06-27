@@ -1,4 +1,4 @@
-import { k } from '../kaboom';
+import { k, getVol, DATA_SFX_VOL } from '../kaboom';
 import { Comp } from 'kaboom';
 import { ON_DIR_CHANGE } from '../abilities/Walk';
 
@@ -64,7 +64,7 @@ export function canSalt(): SaltComp {
                   z(50),
                   "salt",
                ]);
-         play('pepper');
+         play('pepper', { volume: getVol(DATA_SFX_VOL) });
          const anim = saltDir.x ? 'throw' : saltDir.y<0 ? 'throw-up' : 'throw-down';
          this.flipX = saltDir.x>0;
          this.play(anim);

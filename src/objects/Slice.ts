@@ -1,4 +1,4 @@
-import { k } from '../kaboom';
+import { k, getVol, DATA_SFX_VOL } from '../kaboom';
 import {
    Comp,
    GameObj,
@@ -104,7 +104,7 @@ export function slice(options: Partial<SliceCompOpt> = {}): SliceComp {
          enemies = arr;
          fallCount = enemies.length ? (enemies.length+2) : 0;
          enemies.forEach(enemy=>enemy.freeze());
-         if (enemies.length) play('enemy_fall');
+         if (enemies.length) play('enemy_fall', { volume: getVol(DATA_SFX_VOL) });
       },
       set isOnPlate(bool) {
          const changed = onPlate===bool;
@@ -123,14 +123,14 @@ export function slice(options: Partial<SliceCompOpt> = {}): SliceComp {
          this.pos = this.pos.add(0, 1);
          dir.y = FALL_SPEED;
          fallCount = newFallCount<0 ? 0 : newFallCount;
-         play('burger_drop');
+         play('burger_drop', { volume: getVol(DATA_SFX_VOL) });
          this.trigger(ON_SLICE_FALL, this);
       },
       land() {
          if (dir.isZero()) return;
          dir.y = 0;
          this.children.forEach(child=>child.pos.y = Y_NORMAL);
-         play('burger_floor');
+         play('burger_floor', { volume: getVol(DATA_SFX_VOL) });
          enemies.forEach(enemy=>{
             enemy.pos.y = this.pos.y-3;
             if (this.isOnPlate) {
@@ -159,7 +159,7 @@ export function slice(options: Partial<SliceCompOpt> = {}): SliceComp {
             // Player can trample slices
             child.onCollide('player', ()=>{
                child.pos.y = Y_TRAMPLED;
-               play('burger_step');
+               play('burger_step', { volume: getVol(DATA_SFX_VOL) });
                if (this.isFalling) return;
                if (this.isTrampled) this.fall();
             });
