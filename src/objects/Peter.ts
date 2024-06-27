@@ -1,4 +1,4 @@
-import { k } from '../kaboom';
+import { k, getVol, DATA_SFX_VOL } from '../kaboom';
 import {
    AnchorComp,
    AreaComp,
@@ -139,7 +139,7 @@ export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
          this.on(ON_DIE, ()=>{
             this.frame = 14;
             wait(1, ()=>{
-               play('die');
+               play('die', { volume: getVol(DATA_SFX_VOL) });
                this.play("fall");
             });
             wait(1.55, ()=>{
@@ -185,7 +185,7 @@ export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
          this.level+=1;
          this.slices = [];
          this.trigger(ON_WIN, this);
-         play('win');
+         play('win', { volume: getVol(DATA_SFX_VOL) });
          for (let i=0 ; i<8 ; i+=1) {
             this.play(i % 2 ? 'celebrate' : 'idle');
             await wait(0.38);

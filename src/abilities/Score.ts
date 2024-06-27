@@ -1,4 +1,4 @@
-import { k } from '../kaboom';
+import { k, getVol, DATA_SFX_VOL } from '../kaboom';
 import { Comp } from 'kaboom';
 
 const { play } = k;
@@ -22,7 +22,7 @@ export function canScore(): ScoreComp {
       },
       set score(newScore) {
          if (score % NEW_LIFE_SCORE_THRESHOLD > newScore % NEW_LIFE_SCORE_THRESHOLD) {
-            play('powerup');
+            play('powerup', { volume: getVol(DATA_SFX_VOL) });
             this.lives+=1;
          }
          score = newScore;

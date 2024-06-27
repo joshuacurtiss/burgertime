@@ -1,4 +1,4 @@
-import { k } from '../kaboom';
+import { k, getVol, DATA_SFX_VOL } from '../kaboom';
 import {
    AnchorComp,
    AreaComp,
@@ -90,7 +90,7 @@ export function enemy(options: Partial<EnemyCompOpt> = {}): EnemyComp {
          if (this.isFrozen) return;
          this.freeze();
          this.play(`${this.type}-squash`);
-         play('enemy_squash');
+         play('enemy_squash', { volume: getVol(DATA_SFX_VOL) });
          this.trigger(ON_SQUASH, this);
          wait(0.5, ()=>this.pos = vec2(-50));
          wait(randi(8, 20), ()=>{
