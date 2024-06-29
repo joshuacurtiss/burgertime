@@ -1,3 +1,4 @@
+import { Comp, EventController, TextCompOpt } from 'kaboom';
 import { k, DATA_CONTROLS, DEFAULT_CONTROLS, isGamepadButton, isKey } from '../kaboom';
 import { addMenu } from '../menu/Menu';
 import { addButton } from '../menu/Button';
@@ -16,6 +17,7 @@ const {
    setData,
    sprite,
    text,
+   time,
    vec2,
    width,
    WHITE,
@@ -39,11 +41,96 @@ export default function() {
       anchor('center'),
       pos(width()/2, 65),
    ]);
+   interface SelectionItem {
+      id: number;
+      value: string;
+   }
+   interface SelectionCompOpt {
+      selectionArrowTextOpt: TextCompOpt;
+   }
+   const SelectionCompOptDefaults: SelectionCompOpt = {
+      selectionArrowTextOpt: { size: 10 },
+   };
+   function canSelect(selections: SelectionItem[] = [], options: Partial<SelectionCompOpt> = {}) {
+      const opt = Object.assign({}, SelectionCompOptDefaults, options);
+      let index = 0;
+      let vals: SelectionItem[] = selections;
+      let keyWatcher: EventController;
+      let keyWatcherTime = 0;
+      return {
+         id: 'can-select',
+         requires: ['button', 'can-action'],
+         get index() {
+            return index;
+         },
+         set index(val: number) {
+            index = val>=vals.length ? 0 : val<0 ? vals.length-1 : val;
+            this.text = vals[index].value;
+            this.trigger('change', index, vals[index]);
+         },
+         get values() {
+            return vals;
+         },
+         set values(selections: SelectionItem[]) {
+            vals = selections;
+         },
+         add() {
+            this.add([
+               text('﹤', opt.selectionArrowTextOpt),
+               anchor('left'),
+               pos(-this.width/2, this.height/12),
+            ]);
+            this.add([
+               text('﹥', opt.selectionArrowTextOpt),
+               pos(this.width/2, this.height/12),
+               anchor('right'),
+            ]);
+            this.action = ()=>{
+               this.color = rgb(80, 80, 80);
+               menu.keysPaused = true;
+               keyWatcherTime = time();
+               keyWatcher = onKeyPress((key)=>{
+                  if (key==='enter' && time()-keyWatcherTime>1) {
+                     this.blur();
+                     this.focus();
+                  } else if (key==='right') {
+                     this.index+=1;
+                  } else if (key==='left') {
+                     this.index-=1;
+                  }
+               })
+            };
+            this.on('blur', ()=>{
+               keyWatcher?.cancel();
+               menu.keysPaused = false;
+            });
+         }
+      };
+   }
    const playerSelection = addButton({
       text: `Player ${playerIndex+1}`,
       pos: vec2(width()/2, 85),
       ...controlButtonProps,
       width: width()/2,
+   });
+   playerSelection.use(canSelect([
+      { id: 0, value: 'Player 1' },
+      { id: 1, value: 'Player 2' },
+      { id: 2, value: 'Player 3' },
+      { id: 3, value: 'Player 4' },
+   ]));
+   playerSelection.on('change', (idx, selection)=>{
+      const keyObjects = {
+         action: keyPepper,
+         pause: keyPause,
+         left: keyLeft,
+         right: keyRight,
+         up: keyUp,
+         down: keyDown,
+      };
+      Object.entries(keyObjects).forEach(([key, obj])=>{
+         obj.text = controls[idx][key];
+      });
    });
    add([
       sprite('arrow-up', controlSpriteProps),
@@ -118,6 +205,14 @@ export default function() {
    });
    function canKeyPref() {
       let keyWatcher;
+      const keyObjects = {
+         action: keyPepper,
+         pause: keyPause,
+         left: keyLeft,
+         right: keyRight,
+         up: keyUp,
+         down: keyDown,
+      };
       return {
          id: 'can-key-pref',
          requires: ['button'],
@@ -139,14 +234,6 @@ export default function() {
             };
             this.on('blur', ()=>{
                keyWatcher?.cancel();
-               const keyObjects = {
-                  action: keyPepper,
-                  pause: keyPause,
-                  left: keyLeft,
-                  right: keyRight,
-                  up: keyUp,
-                  down: keyDown,
-               };
                Object.entries(keyObjects).forEach(([key, obj])=>{
                   if (isGamepadButton(obj.text) || isKey(obj.text)) controls[playerIndex][key] = obj.text;
                });
@@ -162,6 +249,7 @@ export default function() {
    });
 
    const menu = addMenu([
+      playerSelection,
       keyUp, keyLeft, keyRight, keyDown, keyPause, keyPepper,
       addFocusableText({
          pos: vec2(width()/2, 200),
