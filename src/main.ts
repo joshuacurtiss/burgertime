@@ -1,6 +1,8 @@
 import { k } from './kaboom';
 import GameOverScene from './scenes/GameOverScene';
 import GameScene from './scenes/GameScene';
+import SetControlsScene from './scenes/SetControlsScene';
+import SetVolumeScene from './scenes/SetVolumeScene';
 import StartScene from './scenes/StartScene';
 
 const {
@@ -62,6 +64,10 @@ loadSprite("peter", "peter.png", {
       dead: { from: 17, to: 18, loop: true, speed: 8 }
    },
 });
+loadSprite("arrow-right", "arrow-right.png");
+loadSprite("arrow-up", "arrow-up.png");
+loadSprite("audio-speaker", "audio-speaker.png");
+loadSprite("music-note", "music-note.png");
 loadSprite("title", "title.png");
 loadSprite("floor", "floor.png", { sliceX: 2 });
 loadSprite("floor-stair-blue", "floor-stair-blue.png", { sliceX: 2 });
@@ -77,4 +83,6 @@ loadSprite("stair-green", "stair-green.png", { sliceX: 2 });
 scene("start", StartScene);
 scene("game", GameScene);
 scene("gameover", GameOverScene);
+scene("setVolume", SetVolumeScene);
+scene("setControls", SetControlsScene);
 go("start");

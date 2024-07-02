@@ -1,4 +1,4 @@
-import { k } from '../kaboom';
+import { k, getVol, DATA_SFX_VOL } from '../kaboom';
 import {
    AnchorComp,
    AreaComp,
@@ -37,20 +37,21 @@ const {
 export const ON_WIN = 'win';
 
 export interface PeterControls {
-   keyboard: {
-      left: Key;
-      right: Key;
-      up: Key;
-      down: Key;
-      action: Key;
-   };
-   gamepad: {
-      left: GamepadButton;
-      right: GamepadButton;
-      up: GamepadButton;
-      down: GamepadButton;
-      action: GamepadButton;
-   }
+   left: Key | GamepadButton;
+   right: Key | GamepadButton;
+   up: Key | GamepadButton;
+   down: Key | GamepadButton;
+   action: Key | GamepadButton;
+   pause: Key | GamepadButton;
+};
+
+export const PeterControlsDefault: PeterControls = {
+   left: 'left',
+   right: 'right',
+   up: 'up',
+   down: 'down',
+   action: 'space',
+   pause: 'escape',
 };
 
 export interface PeterComp extends Comp {
@@ -86,6 +87,10 @@ const PeterCompOptDefaults: PeterCompOpt = {
 
 export type PeterObj = GameObj<SpriteComp & AnchorComp & AreaComp & PosComp & ZComp & PeterComp & AliveComp & DetectComp & FreezeComp & SaltComp & ScoreComp & WalkComp>;
 
+export function isPeter(obj: GameObj): obj is PeterObj {
+   return obj.is('peter') && obj.is('player');
+}
+
 export function addPeter(options: Partial<PeterCompOpt> = {}): PeterObj {
    const opt = Object.assign({}, PeterCompOptDefaults, options);
    return add([
@@ -113,22 +118,7 @@ export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
    return {
       id: "peter",
       require: ["area", "sprite", "can-alive", "can-detect", "can-freeze", "can-salt", "can-walk"],
-      controls: {
-         keyboard: {
-            action: "space",
-            left: "left",
-            right: "right",
-            up: "up",
-            down: "down",
-         },
-         gamepad: {
-            action: "south",
-            left: "dpad-left",
-            right: "dpad-right",
-            up: "dpad-up",
-            down: "dpad-down",
-         },
-      },
+      controls: { ...PeterControlsDefault },
       isInitialized: false,
       slices: [],
       add() {
@@ -139,7 +129,7 @@ export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
          this.on(ON_DIE, ()=>{
             this.frame = 14;
             wait(1, ()=>{
-               play('die');
+               play('die', { volume: getVol(DATA_SFX_VOL) });
                this.play("fall");
             });
             wait(1.55, ()=>{
@@ -185,7 +175,7 @@ export function peter(options: Partial<PeterCompOpt> = {}): PeterComp {
          this.level+=1;
          this.slices = [];
          this.trigger(ON_WIN, this);
-         play('win');
+         play('win', { volume: getVol(DATA_SFX_VOL) });
          for (let i=0 ; i<8 ; i+=1) {
             this.play(i % 2 ? 'celebrate' : 'idle');
             await wait(0.38);
