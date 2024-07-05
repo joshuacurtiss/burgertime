@@ -1,5 +1,5 @@
 import { LevelOpt, TimerController } from 'kaboom';
-import { k, urlParams, BURGERTIME_BLUE, getVol, isKey, isGamepadButton, DATA_CONTROLS, DATA_MUSIC_VOL, DATA_SFX_VOL, DEFAULT_CONTROLS, DIR } from '../kaboom';
+import { k, urlParams, BURGERTIME_BLUE, getVol, isKey, isGamepadButton, DATA_CONTROLS, DATA_HI_SCORE, DATA_MUSIC_VOL, DATA_SFX_VOL, DEFAULT_CONTROLS, DEFAULT_HI_SCORE, DIR } from '../kaboom';
 import { levels } from '../objects/Level';
 import { addPowerup, waitSpawnPowerup } from '../objects/Powerup';
 import { Enemy, ON_SQUASH, addEnemy } from '../objects/Enemy';
@@ -30,6 +30,7 @@ const {
    randi,
    Rect,
    rect,
+   setData,
    sprite,
    testRectRect,
    text,
@@ -137,7 +138,7 @@ export default function(options: Partial<GameSceneOpt>) {
       pos(48, 8),
    ]);
    const txtHiScore = ui.add([
-      text('20000', { size: UI_FONT_SIZE, align: 'right', width: 50 }),
+      text(getData(DATA_HI_SCORE, DEFAULT_HI_SCORE).toString(), { size: UI_FONT_SIZE, align: 'right', width: 50 }),
       pos(124, 8),
    ]);
    const txtPepper = ui.add([
@@ -152,7 +153,17 @@ export default function(options: Partial<GameSceneOpt>) {
    player.on(ON_SALT_CHANGE, (qty: number)=>txtPepper.text = qty.toString());
    player.on(ON_SCORE_CHANGE, (score: number)=>{
       txtScore.text = score.toString();
-      if (parseInt(txtHiScore.text)<score) txtHiScore.text = score.toString();
+      let intHiScore: number = DEFAULT_HI_SCORE;
+      try {
+         intHiScore = parseInt(txtHiScore.text);
+      } catch (exc) {
+         console.error('High score could not be parsed as int.');
+      }
+      if (intHiScore<score) {
+         intHiScore = score;
+         txtHiScore.text = intHiScore.toString();
+         setData(DATA_HI_SCORE, intHiScore);
+      }
    });
 
    // Level setup
