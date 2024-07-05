@@ -158,8 +158,8 @@ export function slice(options: Partial<SliceCompOpt> = {}): SliceComp {
          this.children.forEach(child=>{
             // Player can trample slices
             child.onCollide('player', ()=>{
+               if (child.pos.y !== Y_TRAMPLED) play('burger_step', { volume: getVol(DATA_SFX_VOL) });
                child.pos.y = Y_TRAMPLED;
-               play('burger_step', { volume: getVol(DATA_SFX_VOL) });
                if (this.isFalling) return;
                if (this.isTrampled) this.fall();
             });
