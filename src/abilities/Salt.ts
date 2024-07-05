@@ -52,7 +52,7 @@ export function canSalt(): SaltComp {
                   sprite('salt', { frame: 1, flipX: saltDir.x>0 }),
                   anchor('center'),
                   pos(saltPos),
-                  area({collisionIgnore: ['player']}),
+                  area({collisionIgnore: ['player'], scale: 1.5}),
                   z(50),
                   "salt",
                ]),
@@ -60,7 +60,7 @@ export function canSalt(): SaltComp {
                   sprite('salt', { frame: 2, flipX: saltDir.x>0 }),
                   anchor('center'),
                   pos(saltPos.add(0, saltTop.height)),
-                  area({collisionIgnore: ['player']}),
+                  area({collisionIgnore: ['player'], scale: 1.5}),
                   z(50),
                   "salt",
                ]);
