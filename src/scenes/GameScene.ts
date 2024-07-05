@@ -52,27 +52,14 @@ const levelConf: LevelOpt = {
          "floor",
          "flatfloor",
       ],
-      "⌈": () => [
+      "|": () => [
          sprite('stair-blue', { frame: 0 }),
          "stair",
-         "stairleft",
       ],
-      "⌉": () => [
-         sprite('stair-blue', { frame: 1 }),
-         "stair",
-         "stairright",
-      ],
-      "⌋": () => [
+      "!": () => [
          sprite('floor-stair-blue', { frame: 0 }),
          "floor",
          "stair",
-         "stairleft",
-      ],
-      "⌊": () => [
-         sprite('floor-stair-blue', { frame: 1 }),
-         "floor",
-         "stair",
-         "stairright",
       ],
       "(": () => [
          sprite('plate', { frame: 0 }),
@@ -80,7 +67,7 @@ const levelConf: LevelOpt = {
       ")": () => [
          sprite('plate', { frame: 0, flipX: true }),
       ],
-      "⎽": () => [
+      "-": () => [
          sprite('plate', { frame: 1 }),
          "plate",
       ],
@@ -173,6 +160,20 @@ export default function(options: Partial<GameSceneOpt>) {
    const stairs = level.get('stair') as DetectableObj[];
    const floors = level.get('floor') as DetectableObj[];
    const plates = level.get('plate') as DetectableObj[];
+
+   // Assign left/right values of stairs. To simplify the map, we only use one
+   // character for the ladder's left/right sides. So, we process these values
+   // after the fact and adjust accordingly.
+   stairs.forEach(obj=>{
+      // See if the tile to the left is a stair.
+      const leftStair = stairs.find(stair=>stair.tilePos.eq(obj.tilePos.add(-1, 0)))
+      if (leftStair) {
+         obj.frame = 1;
+         obj.use('stairright');
+      } else {
+         obj.use('stairleft');
+      }
+   });
 
    // Calculate where it is flat floor at top of stairs, which is needed to know
    // when characters can climb down from a flat floor.
