@@ -72,6 +72,7 @@ loadSprite("title", "title.png");
 loadSprite("floor", "floor.png", { sliceX: 2 });
 loadSprite("floor-stair-blue", "floor-stair-blue.png", { sliceX: 2 });
 loadSprite("floor-stair-green", "floor-stair-green.png", { sliceX: 2 });
+loadSprite("head-burger", "head-burger.png");
 loadSprite("head-h", "head-h.png");
 loadSprite("head-p", "head-p.png");
 loadSprite("plate", "plate.png", { sliceX: 2 });
