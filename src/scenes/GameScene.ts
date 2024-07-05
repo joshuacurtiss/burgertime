@@ -1,7 +1,7 @@
 import { LevelOpt, TimerController } from 'kaboom';
 import { k, urlParams, BURGERTIME_BLUE, getVol, isKey, isGamepadButton, DATA_CONTROLS, DATA_MUSIC_VOL, DATA_SFX_VOL, DEFAULT_CONTROLS, DIR } from '../kaboom';
 import { levels } from '../objects/Level';
-import { waitSpawnPowerup } from '../objects/Powerup';
+import { addPowerup, waitSpawnPowerup } from '../objects/Powerup';
 import { Enemy, ON_SQUASH, addEnemy } from '../objects/Enemy';
 import { ON_WIN, isPeter, PeterObj } from '../objects/Peter';
 import { addSlice, ON_SLICE_FALL, ON_SLICE_LAND, ON_SLICE_PLATE } from '../objects/Slice';
@@ -187,7 +187,8 @@ export default function(options: Partial<GameSceneOpt>) {
       stair.use(sprite(spriteName, { frame }));
    });
 
-   // Powerups
+   // Powerups (spawn one immediately in level edit mode)
+   if (levelEditMode) addPowerup(levelDef.powerup);
    waitSpawnPowerup(levelDef.powerup);
 
    // Enemy Setup
@@ -375,6 +376,8 @@ export default function(options: Partial<GameSceneOpt>) {
    dlg.onDestroy(()=>{
       wait(player.isInitialized ? 0.25 : 3, ()=>{
          player.isFrozen = false;
+         // Don't activate enemies/music in level edit mode
+         if (levelEditMode) return;
          enemies.forEach(enemy=>enemy.unfreeze());
          music.play();
       });
