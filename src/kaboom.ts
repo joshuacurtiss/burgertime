@@ -5,6 +5,7 @@ import { PeterControls } from './objects/Peter';
 export const GAME_WIDTH = 256;
 export const GAME_HEIGHT = 224;
 export const DEFAULT_VOL: number = 50;
+export const DEFAULT_HI_SCORE: number = 20000;
 export const DEFAULT_CONTROLS: PeterControls[] = [
    {
       action: 'space',
@@ -42,6 +43,7 @@ export const DEFAULT_CONTROLS: PeterControls[] = [
 export const DATA_MUSIC_VOL = 'bt_music_vol';
 export const DATA_SFX_VOL = 'bt_sfx_vol';
 export const DATA_CONTROLS = 'bt_controls';
+export const DATA_HI_SCORE = 'bt_hi_score';
 
 // Kaboom Instance
 export const k: KaboomCtx = kaboom({
@@ -59,6 +61,7 @@ k.setFullscreen(true);
 k.getData(DATA_MUSIC_VOL, DEFAULT_VOL);
 k.getData(DATA_SFX_VOL, DEFAULT_VOL);
 k.getData(DATA_CONTROLS, DEFAULT_CONTROLS);
+k.getData(DATA_HI_SCORE, DEFAULT_HI_SCORE);
 
 // Game Constants (using Kaboom context)
 export const BURGERTIME_BLUE = k.rgb(0, 149, 255);
