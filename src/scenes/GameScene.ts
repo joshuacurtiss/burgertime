@@ -112,6 +112,12 @@ export default function(options: Partial<GameSceneOpt>) {
       sprite('head-h'),
       pos(216, 8),
    ]);
+   for (let i=0 ; i<=player.level ; i+=1) {
+      ui.add([
+         sprite('head-burger'),
+         pos(8, 30 + i*10),
+      ]);
+   }
    ui.add([
       text(`${opt.currentPlayer+1} UP`, { size: UI_FONT_SIZE }),
       pos(16, 8),
