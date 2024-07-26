@@ -66,10 +66,10 @@ k.getData(DATA_HI_SCORE, DEFAULT_HI_SCORE);
 // Game Constants (using Kaboom context)
 export const BURGERTIME_BLUE = k.rgb(0, 149, 255);
 export const DIR = {
-   'left': k.vec2(-1, 0),
-   'right': k.vec2(1, 0),
-   'up': k.vec2(0, -1),
-   'down': k.vec2(0, 1),
+   'left': k.LEFT,
+   'right': k.RIGHT,
+   'up': k.UP,
+   'down': k.DOWN,
 }
 
 // Sound Handling
