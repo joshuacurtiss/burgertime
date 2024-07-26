@@ -306,6 +306,8 @@ export default function(options: Partial<GameSceneOpt>) {
    player.controls = controls[opt.currentPlayer];
    if (isGamepadButton(player.controls.action)) onGamepadButtonPress(player.controls.action, ()=>player.action());
    else if (isKey(player.controls.action)) onKeyPress(player.controls.action, ()=>player.action());
+   if (isGamepadButton(player.controls.pause)) onGamepadButtonPress(player.controls.pause, ()=>debug.paused=!debug.paused);
+   else if (isKey(player.controls.pause)) onKeyPress(player.controls.pause, ()=>debug.paused=!debug.paused);
    const dirPriority = ['left', 'right', 'up', 'down'];
    onUpdate(CURRENT_PLAYER_TAG, p=>{
       if (p.isFrozen || !p.isAlive) return;
