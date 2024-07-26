@@ -119,11 +119,17 @@ export function canDetect(options: Partial<DetectCompOpt> = {}): DetectComp {
             stairtop: within(stairtops, this.pos.add(0, halfHeight), withinStairs, opt.stairPrecision),
          };
       },
-      calcIntents(dir) {
+      calcIntents(dir: Vec2, mode: 'step' | 'tile' = 'step') {
          // These are basically magic numbers that work "just right" with enemies and players.
          const halfHeight = this.getHeight() / 2,
                halfWidth = this.getWidth() / 2,
-               intendedLoc = this.pos.add(0, halfHeight).add(dir.x * halfWidth, dir.y<=0 ? -0.175*halfHeight : halfHeight*0.42);
+               intendedLoc = this.pos
+                  // Start at the feet
+                  .add(0, halfHeight)
+                  // Go to edge of sprite, like the "next step"
+                  .add(dir.x*halfWidth, dir.y<=0 ? -0.175*halfHeight : halfHeight*0.42)
+                  // Go to next tile if mode is 'tile'
+                  .add(mode==='tile' ? dir.x*5 : 0, mode==='tile' ? dir.y*3 : 0);
          return {
             floor: !!dir.x && within(floors, intendedLoc.add(0, -FLOOR_DY), withinFloor, opt.floorPrecision),
             plate: false, // Plates are not walkable by enemies and players
