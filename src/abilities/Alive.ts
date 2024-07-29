@@ -18,7 +18,7 @@ export function canAlive(): AliveComp {
    let lives=4;
    return {
       id: "can-alive",
-      require: ["sprite"],
+      require: ["sprite", "can-freeze"],
       isInvulnerable: false,
       get isOutOfLives() {
          return lives<0;
@@ -37,7 +37,7 @@ export function canAlive(): AliveComp {
          this.trigger(ON_LIVES_CHANGE, num);
       },
       die() {
-         if (!this.isAlive || this.isInvulnerable) return;
+         if (!this.isAlive || this.isFrozen || this.isInvulnerable) return;
          this.isAlive = false;
          this.lives-=1;
          this.stop();
