@@ -1,4 +1,7 @@
 import { Comp } from 'kaboom';
+import { k } from '../kaboom';
+
+const { vec2 } = k;
 
 export const ON_DIE = 'die';
 export const ON_LIVES_CHANGE = 'livesChange';
@@ -18,7 +21,7 @@ export function canAlive(): AliveComp {
    let lives=4;
    return {
       id: "can-alive",
-      require: ["sprite", "can-freeze"],
+      require: ["sprite", "can-freeze", "can-walk"],
       isInvulnerable: false,
       get isOutOfLives() {
          return lives<0;
@@ -40,6 +43,7 @@ export function canAlive(): AliveComp {
          if (!this.isAlive || this.isFrozen || this.isInvulnerable) return;
          this.isAlive = false;
          this.lives-=1;
+         this.dir = vec2(0);
          this.stop();
          this.trigger(ON_DIE, this);
       },
