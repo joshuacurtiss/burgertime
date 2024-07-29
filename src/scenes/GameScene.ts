@@ -355,6 +355,9 @@ export default function(options: Partial<GameSceneOpt>) {
       } else if (keylog.slice(-4)==='gold') {
          player.score += randi(75, 150) * 100;
          debugLog(`Score: ${player.score}`);
+      } else if (keylog.slice(-4)==='kill') {
+         enemies.forEach(enemy=>enemy.squash());
+         debugLog(`Everybody died...`);
       } else if (keylog.slice(-4)==='gone') {
          while (enemies.length) enemies.pop()?.destroy();
          debugLog(`Everybody's gone now...`);
