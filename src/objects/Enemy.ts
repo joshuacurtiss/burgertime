@@ -93,7 +93,7 @@ export function enemy(options: Partial<EnemyCompOpt> = {}): EnemyComp {
          play('enemy_squash', { volume: getVol(DATA_SFX_VOL) });
          this.trigger(ON_SQUASH, this);
          wait(0.5, ()=>this.pos = vec2(-50));
-         wait(randi(8, 20), ()=>{
+         wait(randi(8, 15), ()=>{
             this.setAnim(vec2(0));
             this.pos = opt.pos.clone();
             this.unfreeze();
