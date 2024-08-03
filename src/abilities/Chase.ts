@@ -1,5 +1,5 @@
 import { k, DIR } from '../kaboom';
-import { Comp, GameObj, PosComp, Vec2 } from 'kaboom';
+import { Comp, GameObj, PosComp, Vec2 as V2 } from 'kaboom';
 
 const {
    dt,
@@ -9,6 +9,7 @@ const {
    LEFT,
    UP,
    DOWN,
+   Vec2,
 } = k;
 
 export interface ChaseComp extends Comp {
@@ -86,8 +87,28 @@ export function canChase(): ChaseComp {
          stuckTime = lastPos.eq(this.pos) ? stuckTime+dt() : 0;
          lastPos = this.pos;
          if (lastThinkPos.dist(this.pos)<10 && stuckTime<0.5) return;
-         if (floor) this.snap('vert');
-         else if (stair || stairtop) this.snap('horiz');
+         if (floor) {
+            this.snap('vert');
+         } else if (stair || stairtop) {
+            this.snap('horiz');
+         } else {
+            // If they aren't touching a floor/stair, they must be floating! Slowly walk toward closest floor.
+            // Normal walking won't let them do this, so we manually move/animate the character.
+            const floorTarget = this.getClosestObject('floors');
+            if (floorTarget) {
+               const angle = floorTarget.pos.sub(0,3).angle(this.pos);
+               const dir = Vec2.fromAngle(angle);
+               // Animate walk a little more slowly, every 0.25 second. Move at 75% speed.
+               const newFlipX = floorTarget.pos.x>this.pos.x;
+               const newFrame = (k.time() % 0.5 <= 0.25 ? 0 : 1) + (this.type==='pickle' ? 12 : 0) + (this.type==='egg' ? 24 : 0);
+               const newAnim = `${this.type}-walk`;
+               if (this.curAnim()!==newAnim) this.play(newAnim);
+               if (this.flipX!==newFlipX) this.flipX = newFlipX;
+               if (this.frame!==newFrame) this.frame = newFrame;
+               this.move(dir.scale(this.speed*0.75));
+            }
+            return;
+         }
          if (stuckTime || (floor && (stair || stairtop))) {
             const intents: Intents<boolean> = {
                up: this.calcIntents(UP, 'tile').stair,
@@ -106,7 +127,7 @@ export function canChase(): ChaseComp {
              * Egg:    Will try to prioritize the two furthest directions to the target.
              * Pickle: Will try to prioritize the furthest direction to the target.
              */
-            const selectDirection = (intents: Intents<boolean>, target?: GameObj<PosComp>): Vec2 => {
+            const selectDirection = (intents: Intents<boolean>, target?: GameObj<PosComp>): V2 => {
                let newdir = vec2(0);
 
                // Hotdog will always prefer turning.
