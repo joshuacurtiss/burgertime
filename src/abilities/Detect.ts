@@ -12,6 +12,13 @@ const FLOOR_DY = 3;
 
 export type DetectableObj = GameObj<PosComp & TileComp & SpriteComp & AnchorComp>;
 
+export type DetectableObjCollection<T = DetectableObj[]> = {
+   floors: T;
+   plates: T;
+   stairs: T;
+   stairtops: T;
+}
+
 export interface DetectableStatus {
    floor: boolean;
    plate: boolean;
@@ -24,7 +31,12 @@ export interface DetectComp extends Comp {
     * Fills the component with known detectable objects so it can do its
     * calculations.
     */
-   setObjects: (obj: { floors?: DetectableObj[], plates?: DetectableObj[], stairs?: DetectableObj[], stairtops?: DetectableObj[] }) => void;
+   setObjects: (obj: DetectableObjCollection) => void;
+
+   /**
+    * Finds the closest object of the type specified.
+    */
+   getClosestObject: (type: keyof DetectableObjCollection) => DetectableObj | undefined;
 
    /**
     * Calculates the status of the object based on its current position
@@ -87,19 +99,33 @@ export function within(objs: DetectableObj[], pos: Vec2, method: (obj: Detectabl
 
 export function canDetect(options: Partial<DetectCompOpt> = {}): DetectComp {
    const opt = Object.assign({}, DetectCompOptDefaults, options);
-   let floors: DetectableObj[] = [];
-   let plates: DetectableObj[] = [];
-   let stairs: DetectableObj[] = [];
-   let stairtops: DetectableObj[] = [];
+   const detectableObjects: DetectableObjCollection = {
+      floors: [],
+      plates: [],
+      stairs: [],
+      stairtops: [],
+   };
 
    return {
       id: 'can-detect',
       require: ["pos"],
       setObjects(obj) {
-         if (obj.floors) floors = obj.floors;
-         if (obj.plates) plates = obj.plates;
-         if (obj.stairs) stairs = obj.stairs;
-         if (obj.stairtops) stairtops = obj.stairtops;
+         if (obj.floors) detectableObjects.floors = obj.floors;
+         if (obj.plates) detectableObjects.plates = obj.plates;
+         if (obj.stairs) detectableObjects.stairs = obj.stairs;
+         if (obj.stairtops) detectableObjects.stairtops = obj.stairtops;
+      },
+      getClosestObject(type: keyof DetectableObjCollection = 'floors'): DetectableObj | undefined {
+         let lowestObjDist = 99999;
+         let lowestObj: DetectableObj | undefined;
+         if (type in detectableObjects) detectableObjects[type].forEach(obj=>{
+            const dist = obj.pos.dist(this.pos);
+            if (dist<lowestObjDist) {
+               lowestObjDist = dist;
+               lowestObj = obj;
+            }
+         });
+         return lowestObj;
       },
       getHeight() {
          if (this.height) return this.height;
@@ -113,10 +139,10 @@ export function canDetect(options: Partial<DetectCompOpt> = {}): DetectComp {
          const halfHeight = this.getHeight() / 2;
          const dy = this.is('slice') ? 0 : FLOOR_DY;
          return {
-            floor: within(floors, this.pos.add(0, dy), withinFloor, opt.floorPrecision),
-            plate: within(plates, this.pos.add(0, dy), withinFloor, opt.floorPrecision),
-            stair: within(stairs, this.pos.add(0, halfHeight), withinStairs, opt.stairPrecision),
-            stairtop: within(stairtops, this.pos.add(0, halfHeight), withinStairs, opt.stairPrecision),
+            floor: within(detectableObjects.floors, this.pos.add(0, dy), withinFloor, opt.floorPrecision),
+            plate: within(detectableObjects.plates, this.pos.add(0, dy), withinFloor, opt.floorPrecision),
+            stair: within(detectableObjects.stairs, this.pos.add(0, halfHeight), withinStairs, opt.stairPrecision),
+            stairtop: within(detectableObjects.stairtops, this.pos.add(0, halfHeight), withinStairs, opt.stairPrecision),
          };
       },
       calcIntents(dir: Vec2, mode: 'step' | 'tile' = 'step') {
@@ -131,10 +157,10 @@ export function canDetect(options: Partial<DetectCompOpt> = {}): DetectComp {
                   // Go to next tile if mode is 'tile'
                   .add(mode==='tile' ? dir.x*5 : 0, mode==='tile' ? dir.y*3 : 0);
          return {
-            floor: !!dir.x && within(floors, intendedLoc.add(0, -FLOOR_DY), withinFloor, opt.floorPrecision),
+            floor: !!dir.x && within(detectableObjects.floors, intendedLoc.add(0, -FLOOR_DY), withinFloor, opt.floorPrecision),
             plate: false, // Plates are not walkable by enemies and players
-            stair: !!dir.y && within(stairs, intendedLoc, withinStairs, opt.stairPrecision),
-            stairtop: !!dir.y && within(stairtops, intendedLoc, withinStairs, opt.stairPrecision),
+            stair: !!dir.y && within(detectableObjects.stairs, intendedLoc, withinStairs, opt.stairPrecision),
+            stairtop: !!dir.y && within(detectableObjects.stairtops, intendedLoc, withinStairs, opt.stairPrecision),
          };
       },
    };
