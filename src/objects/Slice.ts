@@ -67,7 +67,7 @@ export function addSlice(options: Partial<SliceCompOpt> = {}): Slice {
    return add([
       anchor('center'),
       pos(opt.pos),
-      canDetect({ floorPrecision: 0.5 }),
+      canDetect({ floorPrecision: 1.25 }),
       slice(opt),
    ]);
 }
@@ -120,7 +120,7 @@ export function slice(options: Partial<SliceCompOpt> = {}): SliceComp {
       },
       fall(newFallCount=0) {
          if (this.isFalling || this.isOnPlate) return;
-         this.pos = this.pos.add(0, 1);
+         this.pos = this.pos.add(0, 1.3);
          dir.y = FALL_SPEED;
          fallCount = newFallCount<0 ? 0 : newFallCount;
          play('burger_drop', { volume: getVol(DATA_SFX_VOL) });
@@ -129,6 +129,12 @@ export function slice(options: Partial<SliceCompOpt> = {}): SliceComp {
       land() {
          if (dir.isZero()) return;
          dir.y = 0;
+         // Snap to the closest floor for exact placement
+         const closestFloor = this.getClosestObject(this.isOnPlate ? 'plates' : 'floors');
+         if (closestFloor && Math.abs(closestFloor.pos.y-this.pos.y)<1.3) {
+            this.moveTo(closestFloor.pos);
+         }
+         // Reset slice bits to non-trampled position
          this.children.forEach(child=>child.pos.y = Y_NORMAL);
          play('burger_floor', { volume: getVol(DATA_SFX_VOL) });
          enemies.forEach(enemy=>{
@@ -155,7 +161,7 @@ export function slice(options: Partial<SliceCompOpt> = {}): SliceComp {
                "slice-bit"
             ]);
          }
-         this.children.forEach(child=>{
+         this.children.forEach((child, idx)=>{
             // Player can trample slices
             child.onCollide('player', ()=>{
                if (child.pos.y !== Y_TRAMPLED) play('burger_step', { volume: getVol(DATA_SFX_VOL) });
@@ -169,18 +175,18 @@ export function slice(options: Partial<SliceCompOpt> = {}): SliceComp {
                enemy.squash();
             });
             // Slices will bump other slices while falling
-            child.onCollide('slice-bit', (sliceBit)=>{
+            if (idx===0) child.onCollide('slice-bit', (sliceBit)=>{
                if (!sliceBit.isOverlapping(child)) return;
                const otherSlice = sliceBit.parent as Slice;
                if (otherSlice.isOnPlate) {
                   this.isOnPlate = true;
+                  this.pos = this.pos.add(0, -4);
                   this.land();
-                  this.pos = this.pos.add(0, -1);
                   return;
                }
                sliceBit.parent.fall(fallCount);
-               this.pos.y-=1.5
-               enemies.forEach(enemy=>enemy.pos.y-=1.5);
+               this.pos.y-=3;
+               enemies.forEach(enemy=>enemy.pos.y-=3);
             });
          });
       },
