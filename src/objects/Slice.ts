@@ -107,7 +107,7 @@ export function slice(options: Partial<SliceCompOpt> = {}): SliceComp {
          if (enemies.length) play('enemy_fall', { volume: getVol(DATA_SFX_VOL) });
       },
       set isOnPlate(bool) {
-         const changed = onPlate===bool;
+         const changed = onPlate!==bool;
          onPlate = bool;
          if (bool && changed) this.trigger(ON_SLICE_PLATE, this);
       },
